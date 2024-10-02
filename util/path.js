@@ -1,3 +1,8 @@
-const path = require('path');
+import { fileURLToPath } from "url";
+import path from "path";
 
-module.exports = path.dirname(process.mainModule.filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.dirname(__dirname);
+
+export default rootDir;
