@@ -10,19 +10,21 @@ export const getAddProduct = (req, res, next) => {
   });
 };
 
-export const postAddProduct = (req, res, next) => {
-  const products = new Product(req.body.title);
-  products.save();
+export const postAddProduct = async (req, res, next) => {
+  const product = new Product(req.body.title);
+  await product.save();
   res.redirect("/");
 };
 
-export const getProducts = (req, res, next) => {
-  const product = Product.fetchAll();
+export const getProducts = async (req, res, next) => {
+  const products = await Product.fetchAll();
+  console.log(products);
+
   res.render("shop", {
-    prods: product,
+    prods: products,
     pageTitle: "Shop",
     path: "/",
-    hasProducts: product.length > 0,
+    hasProducts: products.length > 0,
     activeShop: true,
     productCSS: true,
   });
