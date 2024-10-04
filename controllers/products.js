@@ -1,4 +1,4 @@
-import Product from "../models/product.js";
+import Product from "../models/Product.js";
 
 export const getAddProduct = (req, res, next) => {
   res.render("add-product", {
@@ -17,13 +17,15 @@ export const postAddProduct = (req, res, next) => {
 };
 
 export const getProducts = (req, res, next) => {
-  const product = Product.fetchAll();
-  res.render("shop", {
-    prods: product,
-    pageTitle: "Shop",
-    path: "/",
-    hasProducts: product.length > 0,
-    activeShop: true,
-    productCSS: true,
+  Product.fetchAll().then((products) => {
+    console.log(products);
+    res.render("shop", {
+      prods: products,
+      pageTitle: "Shop",
+      path: "/",
+      hasProducts: products.length > 0,
+      activeShop: true,
+      productCSS: true,
+    });
   });
 };
