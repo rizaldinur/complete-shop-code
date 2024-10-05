@@ -8,7 +8,8 @@ export const getAddProduct = (req, res, next) => {
 };
 
 export const postAddProduct = async (req, res, next) => {
-  const product = new Product(req.body.title);
+  const { title, imageUrl, price, description } = req.body;
+  const product = new Product(title, imageUrl, price, description);
   await product.save();
   res.redirect("/");
 };
