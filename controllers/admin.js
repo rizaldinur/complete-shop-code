@@ -14,8 +14,11 @@ export const postAddProduct = async (req, res, next) => {
   res.redirect("/");
 };
 
-export const getAdminProducts = (req, res, next) => {
+export const getAdminProducts = async (req, res, next) => {
+  const products = await Product.fetchAll();
+
   res.render("admin/products", {
+    prods: products,
     pageTitle: "Admin Product",
     path: "/admin/products",
   });
