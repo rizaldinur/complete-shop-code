@@ -38,6 +38,16 @@ export const getCart = (req, res, next) => {
   });
 };
 
+export const postCart = (req, res, next) => {
+  const { productId } = req.body;
+  console.log(productId);
+
+  res.render("shop/cart", {
+    path: "/cart",
+    pageTitle: "Your Cart",
+  });
+};
+
 export const getOrders = (req, res, next) => {
   res.render("shop/orders", {
     path: "/orders",
