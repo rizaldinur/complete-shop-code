@@ -1,4 +1,5 @@
 import Product from "../models/product.js";
+import Cart from "../models/cart.js";
 
 export const getProducts = async (req, res, next) => {
   const products = await Product.fetchAll();
@@ -38,9 +39,11 @@ export const getCart = (req, res, next) => {
   });
 };
 
-export const postCart = (req, res, next) => {
+export const postCart = async (req, res, next) => {
   const { productId } = req.body;
-  console.log(productId);
+  const product = await Product.findById(productId);
+  const productPrice = product.price;
+  await Cart.addProduct(productId, productPrice);
 
   res.render("shop/cart", {
     path: "/cart",
