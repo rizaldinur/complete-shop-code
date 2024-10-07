@@ -25,6 +25,7 @@ class Product {
   }
 
   async save() {
+    this.id = Math.random().toString();
     const products = await getFileContent();
     console.log(this);
     products.push(this);
@@ -33,6 +34,12 @@ class Product {
 
   static async fetchAll() {
     return await getFileContent();
+  }
+
+  static async findById(id) {
+    const products = await getFileContent();
+    const product = products.find((p) => p.id === id);
+    return product;
   }
 }
 

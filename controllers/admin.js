@@ -9,7 +9,7 @@ export const getAddProduct = (req, res, next) => {
 
 export const postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = new Product(title, imageUrl, price, description);
+  const product = new Product(title, imageUrl, description, price);
   await product.save();
   res.redirect("/");
 };
