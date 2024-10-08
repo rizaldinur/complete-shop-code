@@ -3,4 +3,19 @@
 
     <body>
         <%- include('../includes/navigation.ejs') %>
+        <main>
+        <% if (products.length>0) { %>
+            <ul>
+            <% products.forEach(prods => { %>
+                <li>
+                    <%= prods.title %> (<%=prods.qty  %>) x <%= prods.price %> = <%= parseFloat((prods.price*prods.qty).toFixed(2)) %>
+                </li>  
+            <% }) %>
+            </ul>
+            <hr>
+            <h2>Total Price: $ <%= totalPrice %></h2>      
+        <% } else { %>
+            <h1>Nothing there!</h1>
+        <% } %>
+        </main>
         <%- include('../includes/end.ejs') %>

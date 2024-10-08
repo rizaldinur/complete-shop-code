@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs/promises";
 import { get } from "http";
 import { writeFile } from "fs";
+import Cart from "./cart.js";
 
 const p = path.join(rootDir, "data", "products.json");
 
@@ -53,6 +54,18 @@ class Product {
     const products = await getFileContent();
     const product = products.find((p) => p.id === id);
     return product;
+  }
+
+  static async deleteById(id) {
+    try {
+      const products = await getFileContent();
+      const product = products.find((p) => p.id === id);
+      const updatedProducts = products.filter((p) => p.id !== id);
+      await fs.writeFile(p, JSON.stringify(updatedProducts));
+      await Cart.deleteProduct(id, product.price);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

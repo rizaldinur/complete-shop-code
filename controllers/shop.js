@@ -32,11 +32,34 @@ export const getIndex = async (req, res, next) => {
   });
 };
 
-export const getCart = (req, res, next) => {
-  res.render("shop/cart", {
-    path: "/cart",
-    pageTitle: "Your Cart",
-  });
+export const getCart = async (req, res, next) => {
+  try {
+    const cart = await Cart.getCart();
+    const products = await Product.fetchAll();
+
+    let cartDetails = { products: [], totalPrice: cart.totalPrice };
+    products.forEach((prod) => {
+      cart.products.forEach((cprod) => {
+        if (prod.id === cprod.id) {
+          cartDetails.products.push({
+            ...prod,
+            qty: cprod.qty,
+          });
+        }
+      });
+    });
+
+    console.log(cartDetails);
+    res.render("shop/cart", {
+      products: cartDetails.products,
+      totalPrice: cartDetails.totalPrice,
+      path: "/cart",
+      pageTitle: "Your Cart",
+    });
+  } catch (error) {
+    console.log(error);
+    res.redirect("/404");
+  }
 };
 
 export const postCart = async (req, res, next) => {
@@ -45,10 +68,7 @@ export const postCart = async (req, res, next) => {
   const productPrice = product.price;
   await Cart.addProduct(productId, productPrice);
 
-  res.render("shop/cart", {
-    path: "/cart",
-    pageTitle: "Your Cart",
-  });
+  res.redirect("/cart");
 };
 
 export const getOrders = (req, res, next) => {
