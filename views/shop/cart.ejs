@@ -6,16 +6,23 @@
         <main>
         <% if (products.length>0) { %>
             <ul>
-            <% products.forEach(prods => { %>
+            <% products.forEach(p => { %>
                 <li>
-                    <%= prods.title %> (<%=prods.qty  %>) x <%= prods.price %> = <%= parseFloat((prods.price*prods.qty).toFixed(2)) %>
+                    <p>
+                        <%= p.title %> (<%=p.qty  %>) x <%= p.price %> = <%= parseFloat((p.price*p.qty).toFixed(2)) %>
+                    </p>
+                    <form action="/cart-delete-item" method="post">
+                        <button class="btn" type="submit">Delete</button>
+                        <input type="hidden" name="productId" value="<%= p.id %>" />
+                        <input type="hidden" name="productSubTotal" value="<%= p.price %>" />
+                    </form>
                 </li>  
             <% }) %>
             </ul>
             <hr>
             <h2>Total Price: $ <%= totalPrice %></h2>      
         <% } else { %>
-            <h1>Nothing there!</h1>
+            <h1>There are no items in cart!</h1>
         <% } %>
         </main>
         <%- include('../includes/end.ejs') %>

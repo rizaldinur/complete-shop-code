@@ -42,23 +42,22 @@ class Cart {
     let cart = { products: [], totalPrice: 0 };
     try {
       const fileContent = await fs.readFile(p);
-      if (fileContent) {
-        cart = JSON.parse(fileContent);
+      cart = JSON.parse(fileContent);
+      //cek existing product is in cart?
+      const existingProduct = cart.products.find((p) => p.id === id);
+
+      //delete from cart if exist
+      if (existingProduct) {
+        cart.products = cart.products.filter((p) => p.id !== id);
+        //count price
+        cart.totalPrice = parseFloat(
+          (cart.totalPrice - productPrice * existingProduct.qty).toFixed(2)
+        );
+      } else {
+        return;
       }
     } catch (error) {
       console.log(error);
-    }
-
-    //cek existing product is in cart?
-    const existingProduct = cart.products.find((p) => p.id === id);
-
-    //delete from cart if exist
-    if (existingProduct) {
-      cart.products = cart.products.filter((p) => p.id !== id);
-      //count price
-      cart.totalPrice = parseFloat(
-        (cart.totalPrice - productPrice * existingProduct.qty).toFixed(2)
-      );
     }
 
     try {
