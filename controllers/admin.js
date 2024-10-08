@@ -1,4 +1,5 @@
 import Product from "../models/product.js";
+import express from "express";
 
 export const getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -10,7 +11,7 @@ export const getAddProduct = (req, res, next) => {
 
 export const postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = new Product(title, imageUrl, description, price);
+  const product = new Product(null, title, imageUrl, description, price);
   await product.save();
   res.redirect("/");
 };
@@ -32,6 +33,13 @@ export const getEditProduct = async (req, res, next) => {
   });
 };
 
+export const postEditProduct = async (req, res, next) => {
+  const { productId } = req.params;
+  const { title, imageUrl, price, description } = req.body;
+  const product = new Product(productId, title, imageUrl, description, price);
+  await product.save();
+  res.redirect("/");
+};
 export const getAdminProducts = async (req, res, next) => {
   const products = await Product.fetchAll();
 

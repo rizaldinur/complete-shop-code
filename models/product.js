@@ -17,7 +17,8 @@ const getFileContent = async () => {
 };
 
 class Product {
-  constructor(title, imageUrl, description, price) {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
@@ -25,11 +26,23 @@ class Product {
   }
 
   async save() {
-    this.id = Math.random().toString();
-    const products = await getFileContent();
-    console.log(this);
-    products.push(this);
-    await fs.writeFile(p, JSON.stringify(products));
+    if (this.id) {
+      const products = await getFileContent();
+      //get exising prod
+      const existingProductIndex = products.findIndex((p) => p.id === this.id);
+      //rewrite products with new updated product data
+      const updatedProducts = [...products];
+      updatedProducts[existingProductIndex] = this;
+      //rewrite the file product data
+      console.log(this);
+      await fs.writeFile(p, JSON.stringify(updatedProducts));
+    } else {
+      this.id = Math.random().toString();
+      const products = await getFileContent();
+      console.log(this);
+      products.push(this);
+      await fs.writeFile(p, JSON.stringify(products));
+    }
   }
 
   static async fetchAll() {
