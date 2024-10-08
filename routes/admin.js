@@ -13,4 +13,6 @@ router.get("/products", adminControllers.getAdminProducts);
 // /admin/add-product => POST
 router.post("/add-product", adminControllers.postAddProduct);
 
+router.get("/edit-product/:productId", adminControllers.getEditProduct);
+
 export default router;
