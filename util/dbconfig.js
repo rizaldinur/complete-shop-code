@@ -1,9 +1,11 @@
 import pg from "pg";
 import dotenv from "dotenv";
+import { Sequelize } from "sequelize";
 
 dotenv.config();
-const db = new pg.Pool({
-  connectionString: process.env.DBConnLink,
+
+const sequelize = new Sequelize(process.env.DBConnLink, {
+  dialect: "postgres",
 });
 
-export default db;
+export default sequelize;

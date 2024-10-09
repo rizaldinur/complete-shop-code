@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import adminRoutes from "./routes/admin.js";
 import shopRoutes from "./routes/shop.js";
 import pageNotFound from "./controllers/error.js";
+import sequelize from "./util/dbconfig.js";
 
 const app = express();
 
@@ -20,6 +21,12 @@ app.use(shopRoutes);
 
 app.use(pageNotFound);
 
-app.listen(3000, () => {
+app.listen(3000, async () => {
   console.log(`server running on http://localhost:3000`);
+  try {
+    await sequelize.authenticate();
+    console.log("DB Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
 });
