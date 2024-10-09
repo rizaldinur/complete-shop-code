@@ -39,9 +39,7 @@ class Product {
   }
 
   static async findById(id) {
-    const products = await getFileContent();
-    const product = products.find((p) => p.id === id);
-    return product;
+    return await db.query("SELECT * FROM products WHERE id=$1", [id]);
   }
 
   static async deleteById(id) {

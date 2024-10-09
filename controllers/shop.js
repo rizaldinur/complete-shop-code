@@ -5,6 +5,7 @@ export const getProducts = async (req, res, next) => {
   try {
     const result = await Product.fetchAll();
     const products = result.rows;
+
     res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
@@ -17,14 +18,21 @@ export const getProducts = async (req, res, next) => {
 };
 
 export const getProduct = async (req, res, next) => {
-  const { productId } = req.params;
-  const product = await Product.findById(productId);
+  try {
+    const { productId } = req.params;
+    const result = await Product.findById(parseInt(productId));
+    const product = result.rows[0];
+    console.log(product);
 
-  res.render("shop/product-detail", {
-    product: product,
-    pageTitle: product.title,
-    path: "/products",
-  });
+    res.render("shop/product-detail", {
+      product: product,
+      pageTitle: product.title,
+      path: "/products",
+    });
+  } catch (error) {
+    res.redirect("/404");
+    console.error(error);
+  }
 };
 
 export const getIndex = async (req, res, next) => {
