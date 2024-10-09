@@ -28,23 +28,10 @@ class Product {
   }
 
   async save() {
-    if (this.id) {
-      const products = await getFileContent();
-      //get exising prod
-      const existingProductIndex = products.findIndex((p) => p.id === this.id);
-      //rewrite products with new updated product data
-      const updatedProducts = [...products];
-      updatedProducts[existingProductIndex] = this;
-      //rewrite the file product data
-      console.log(this);
-      await fs.writeFile(p, JSON.stringify(updatedProducts));
-    } else {
-      this.id = Math.random().toString();
-      const products = await getFileContent();
-      console.log(this);
-      products.push(this);
-      await fs.writeFile(p, JSON.stringify(products));
-    }
+    return await db.query(
+      'INSERT INTO products(title,price,description,"imageUrl") VALUES ($1,$2,$3,$4)',
+      [this.title, this.price, this.description, this.imageUrl]
+    );
   }
 
   static async fetchAll() {
