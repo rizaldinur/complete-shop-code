@@ -29,4 +29,11 @@ app.listen(3000, async () => {
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
+
+  try {
+    await sequelize.sync();
+    console.log("DB Synced.");
+  } catch (error) {
+    console.error("Failed to sync DB:", error);
+  }
 });

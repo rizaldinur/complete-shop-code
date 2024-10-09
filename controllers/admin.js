@@ -12,9 +12,8 @@ export const getAddProduct = (req, res, next) => {
 export const postAddProduct = async (req, res, next) => {
   try {
     const { title, imageUrl, price, description } = req.body;
-    const product = new Product(null, title, imageUrl, description, price);
-    await product.save();
-    res.redirect("/");
+    await Product.create({ ...req.body });
+    // res.redirect("/");
   } catch (error) {
     console.error(error);
     res.redirect("/404");

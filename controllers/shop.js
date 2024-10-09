@@ -3,8 +3,7 @@ import Cart from "../models/cart.js";
 
 export const getProducts = async (req, res, next) => {
   try {
-    const result = await Product.fetchAll();
-    const products = result.rows;
+    const products = await Product.findAll();
 
     res.render("shop/product-list", {
       prods: products,
@@ -20,9 +19,7 @@ export const getProducts = async (req, res, next) => {
 export const getProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const result = await Product.findById(parseInt(productId));
-    const product = result.rows[0];
-    console.log(product);
+    const product = await Product.findByPk(productId);
 
     res.render("shop/product-detail", {
       product: product,
@@ -36,8 +33,7 @@ export const getProduct = async (req, res, next) => {
 };
 
 export const getIndex = async (req, res, next) => {
-  const result = await Product.fetchAll();
-  const products = result.rows;
+  const products = await Product.findAll();
 
   res.render("shop/index", {
     prods: products,
