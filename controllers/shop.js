@@ -2,19 +2,24 @@ import Product from "../models/product.js";
 import Cart from "../models/cart.js";
 
 export const getProducts = async (req, res, next) => {
-  const products = await Product.fetchAll();
-
-  res.render("shop/product-list", {
-    prods: products,
-    pageTitle: "All Products",
-    path: "/products",
-  });
+  try {
+    const result = await Product.fetchAll();
+    const products = result.rows;
+    res.render("shop/product-list", {
+      prods: products,
+      pageTitle: "All Products",
+      path: "/products",
+    });
+  } catch (error) {
+    res.redirect("/404");
+    console.error(error);
+  }
 };
 
 export const getProduct = async (req, res, next) => {
   const { productId } = req.params;
   const product = await Product.findById(productId);
-  console.log(product);
+
   res.render("shop/product-detail", {
     product: product,
     pageTitle: product.title,
@@ -23,7 +28,8 @@ export const getProduct = async (req, res, next) => {
 };
 
 export const getIndex = async (req, res, next) => {
-  const products = await Product.fetchAll();
+  const result = await Product.fetchAll();
+  const products = result.rows;
 
   res.render("shop/index", {
     prods: products,

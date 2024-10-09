@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { get } from "http";
 import { writeFile } from "fs";
 import Cart from "./cart.js";
+import db from "../util/dbconfig.js";
 
 const p = path.join(rootDir, "data", "products.json");
 
@@ -47,7 +48,7 @@ class Product {
   }
 
   static async fetchAll() {
-    return await getFileContent();
+    return await db.query("SELECT * FROM products");
   }
 
   static async findById(id) {
