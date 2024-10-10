@@ -2,6 +2,7 @@ import Product from "../models/product.js";
 import Cart from "../models/cart.js";
 import { Model, where } from "sequelize";
 import CartItem from "../models/cart-item.js";
+import Order from "../models/order.js";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -103,10 +104,33 @@ export const postDeleteCartItem = async (req, res, next) => {
   res.redirect("/cart");
 };
 
-export const getOrders = (req, res, next) => {
+export const postOrder = async (req, res, next) => {
+  const userCart = await req.user.getCart();
+  const products = await userCart.getProducts();
+
+  const userOrder = await req.user.createOrder();
+  await userOrder.addProducts(
+    products.map((p) => {
+      p.orderItem = { quantity: p.cartItem.quantity };
+      return p;
+    })
+  );
+  await userCart.setProducts([]);
+
+  res.redirect("/orders");
+};
+
+export const getOrders = async (req, res, next) => {
+  const userOrders = await req.user.getOrders({ include: Product });
+  // const userOrders = await Order.findAll({
+  //   where: { userId: req.user.id },
+  //   include: Product,
+  // });
+
   res.render("shop/orders", {
     path: "/orders",
-    pageTitle: "Your Cart",
+    orders: userOrders,
+    pageTitle: "Your Orders",
   });
 };
 
