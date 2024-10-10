@@ -45,10 +45,10 @@ try {
 // initialize DB synchronization
 try {
   //1 to many
-  User.hasMany(Product);
+  User.hasMany(Product, { onDelete: "CASCADE" });
   Product.belongsTo(User);
   //1 to 1
-  User.hasOne(Cart);
+  User.hasOne(Cart, { foreignKey: { unique: true } });
   Cart.belongsTo(User);
   //many to many
   Cart.belongsToMany(Product, { through: CartItem });
@@ -64,6 +64,9 @@ try {
     },
   });
   console.log("Is User Created? ", created);
+  if (!(await user.getCart())) {
+    await user.createCart();
+  }
 
   app.listen(3000, () => {
     console.log(`server running on http://localhost:3000`);

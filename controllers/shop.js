@@ -44,22 +44,24 @@ export const getIndex = async (req, res, next) => {
 
 export const getCart = async (req, res, next) => {
   try {
-    const cart = await Cart.getCart();
-    const products = await Product.fetchAll();
+    // const cart = await Cart.getCart();
+    // const products = await Product.fetchAll();
 
-    let cartDetails = { products: [], totalPrice: cart.totalPrice };
-    products.forEach((prod) => {
-      cart.products.forEach((cprod) => {
-        if (prod.id === cprod.id) {
-          cartDetails.products.push({
-            ...prod,
-            qty: cprod.qty,
-          });
-        }
-      });
-    });
+    // let cartDetails = { products: [], totalPrice: cart.totalPrice };
+    // products.forEach((prod) => {
+    //   cart.products.forEach((cprod) => {
+    //     if (prod.id === cprod.id) {
+    //       cartDetails.products.push({
+    //         ...prod,
+    //         qty: cprod.qty,
+    //       });
+    //     }
+    //   });
+    // });
 
-    console.log(cartDetails);
+    // console.log(cartDetails);
+
+    console.log(await req.user.getCart());
     res.render("shop/cart", {
       products: cartDetails.products,
       totalPrice: cartDetails.totalPrice,
