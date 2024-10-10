@@ -8,6 +8,8 @@ import pageNotFound from "./controllers/error.js";
 import sequelize from "./util/dbconfig.js";
 import Product from "./models/product.js";
 import User from "./models/user.js";
+import Cart from "./models/cart.js";
+import CartItem from "./models/cart-item.js";
 
 const app = express();
 
@@ -42,8 +44,16 @@ try {
 
 // initialize DB synchronization
 try {
+  //1 to many
   User.hasMany(Product);
   Product.belongsTo(User);
+  //1 to 1
+  User.hasOne(Cart);
+  Cart.belongsTo(User);
+  //many to many
+  Cart.belongsToMany(Product, { through: CartItem });
+  Product.belongsToMany(Cart, { through: CartItem });
+
   await sequelize.sync();
   console.log("DB Synced.");
   const [user, created] = await User.findOrCreate({
