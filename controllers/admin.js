@@ -65,6 +65,6 @@ export const getAdminProducts = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   const { productId } = req.body;
-  await Product.deleteById(productId);
-  res.redirect("/");
+  await Product.destroy({ where: { id: productId } });
+  res.redirect("/admin/products");
 };
