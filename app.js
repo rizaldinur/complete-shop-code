@@ -10,6 +10,8 @@ import Product from "./models/product.js";
 import User from "./models/user.js";
 import Cart from "./models/cart.js";
 import CartItem from "./models/cart-item.js";
+import Order from "./models/order.js";
+import OrderItem from "./models/order-item.js";
 
 const app = express();
 
@@ -46,12 +48,18 @@ try {
   //1 to many
   User.hasMany(Product, { onDelete: "CASCADE" });
   Product.belongsTo(User);
+
+  User.hasMany(Order);
+  Order.belongsTo(User);
   //1 to 1
   User.hasOne(Cart, { foreignKey: { unique: true } });
   Cart.belongsTo(User);
   //many to many
   Cart.belongsToMany(Product, { through: CartItem });
   Product.belongsToMany(Cart, { through: CartItem });
+  //n:m Order-Product
+  Order.belongsToMany(Product, { through: OrderItem });
+  Product.belongsToMany(Order, { through: OrderItem });
 
   // await sequelize.sync({ force: true });
   await sequelize.sync();
