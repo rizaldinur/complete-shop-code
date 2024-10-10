@@ -96,7 +96,9 @@ export const postCart = async (req, res, next) => {
 
 export const postDeleteCartItem = async (req, res, next) => {
   const { productId, productSubTotal } = req.body;
-  await Cart.deleteProduct(productId, productSubTotal);
+  const userCart = await req.user.getCart();
+  const product = await userCart.getProducts({ where: { id: productId } });
+  await userCart.removeProduct(product[0]);
 
   res.redirect("/cart");
 };
