@@ -25,7 +25,6 @@ app.use(express.static(path.join(rootDir, "public")));
 app.use(async (req, res, next) => {
   const user = await User.findByPk(1);
   req.user = user;
-  // console.log(req.user);
   next();
 });
 
@@ -54,6 +53,7 @@ try {
   Cart.belongsToMany(Product, { through: CartItem });
   Product.belongsToMany(Cart, { through: CartItem });
 
+  // await sequelize.sync({ force: true });
   await sequelize.sync();
   console.log("DB Synced.");
   const [user, created] = await User.findOrCreate({
