@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import Product from "../models/product.js";
 import express from "express";
 
@@ -12,7 +13,7 @@ export const getAddProduct = (req, res, next) => {
 export const postAddProduct = async (req, res, next) => {
   try {
     // const { title, imageUrl, price, description } = req.body;
-    await Product.create({ ...req.body });
+    await req.user.createProduct({ ...req.body });
     res.redirect("/");
   } catch (error) {
     console.error(error);
@@ -26,10 +27,10 @@ export const getEditProduct = async (req, res, next) => {
     return res.redirect("/404");
   }
   const { productId } = req.params;
-  const product = await Product.findByPk(productId);
+  const product = await req.user.getProducts({ where: { id: productId } });
 
   res.render("admin/edit-product", {
-    product: product,
+    product: product[0],
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
     editMode: editMode,
@@ -54,7 +55,7 @@ export const postEditProduct = async (req, res, next) => {
   res.redirect("/");
 };
 export const getAdminProducts = async (req, res, next) => {
-  const products = await Product.findAll();
+  const products = await req.user.getProducts();
 
   res.render("admin/products", {
     prods: products,

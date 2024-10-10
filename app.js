@@ -18,11 +18,12 @@ console.log(rootDir);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, "public")));
 
-//store dummy user data in request
+//store dummy user data as request
+//when request comes through this middleware
 app.use(async (req, res, next) => {
   const user = await User.findByPk(1);
   req.user = user;
-  console.log(req.user);
+  // console.log(req.user);
   next();
 });
 
@@ -52,7 +53,7 @@ try {
       email: "test@test.com",
     },
   });
-  console.log("Is Created? ", created);
+  console.log("Is User Created? ", created);
 
   app.listen(3000, () => {
     console.log(`server running on http://localhost:3000`);
