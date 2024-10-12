@@ -1,7 +1,7 @@
 import sequelize from "../util/dbconfig.js";
 import { Sequelize, DataTypes } from "sequelize";
 
-const Cart = sequelize.define("cart", {
+const Order = sequelize.define("order", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -10,4 +10,4 @@ const Cart = sequelize.define("cart", {
   },
 });
 
-export default Cart;
+export default Order;
