@@ -1,12 +1,13 @@
 import Product from "../models/product.js";
-import Cart from "../models/cart.js";
-import { Model, where } from "sequelize";
-import CartItem from "../models/cart-item.js";
-import Order from "../models/order.js";
+// import Cart from "../models/cart.js";
+// import { Model, where } from "sequelize";
+// import CartItem from "../models/cart-item.js";
+// import Order from "../models/order.js";
 
 export const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.fetchAll();
+    console.log(products);
 
     res.render("shop/product-list", {
       prods: products,
@@ -22,7 +23,9 @@ export const getProducts = async (req, res, next) => {
 export const getProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const product = await Product.findByPk(productId);
+
+    const product = await Product.findById(productId);
+    console.log(product);
 
     res.render("shop/product-detail", {
       product: product,
@@ -36,10 +39,8 @@ export const getProduct = async (req, res, next) => {
 };
 
 export const getIndex = async (req, res, next) => {
-  const products = await Product.findAll();
-  // products.forEach((p) => {
-  //   console.log(p.title);
-  // });
+  const products = await Product.fetchAll();
+  console.log(products);
 
   res.render("shop/index", {
     prods: products,

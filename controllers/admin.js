@@ -12,8 +12,11 @@ export const getAddProduct = (req, res, next) => {
 
 export const postAddProduct = async (req, res, next) => {
   try {
-    // const { title, imageUrl, price, description } = req.body;
-    await req.user.createProduct({ ...req.body });
+    const { title, price, description, imageUrl } = req.body;
+    const product = new Product(title, price, description, imageUrl);
+    await product.save();
+    console.log(product);
+
     res.redirect("/");
   } catch (error) {
     console.error(error);
@@ -21,51 +24,51 @@ export const postAddProduct = async (req, res, next) => {
   }
 };
 
-export const getEditProduct = async (req, res, next) => {
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect("/404");
-  }
-  const { productId } = req.params;
-  const product = await req.user.getProducts({ where: { id: productId } });
+// export const getEditProduct = async (req, res, next) => {
+//   const editMode = req.query.edit;
+//   if (!editMode) {
+//     return res.redirect("/404");
+//   }
+//   const { productId } = req.params;
+//   const product = await req.user.getProducts({ where: { id: productId } });
 
-  res.render("admin/edit-product", {
-    product: product[0],
-    pageTitle: "Edit Product",
-    path: "/admin/edit-product",
-    editMode: editMode,
-  });
-};
+//   res.render("admin/edit-product", {
+//     product: product[0],
+//     pageTitle: "Edit Product",
+//     path: "/admin/edit-product",
+//     editMode: editMode,
+//   });
+// };
 
-export const postEditProduct = async (req, res, next) => {
-  const { productId } = req.params;
-  const [count, rows] = await Product.update(
-    {
-      ...req.body,
-    },
-    {
-      where: {
-        id: productId,
-      },
-    }
-  );
-  console.log(count);
-  console.log(rows);
+// export const postEditProduct = async (req, res, next) => {
+//   const { productId } = req.params;
+//   const [count, rows] = await Product.update(
+//     {
+//       ...req.body,
+//     },
+//     {
+//       where: {
+//         id: productId,
+//       },
+//     }
+//   );
+//   console.log(count);
+//   console.log(rows);
 
-  res.redirect("/");
-};
-export const getAdminProducts = async (req, res, next) => {
-  const products = await req.user.getProducts();
+//   res.redirect("/");
+// };
+// export const getAdminProducts = async (req, res, next) => {
+//   const products = await req.user.getProducts();
 
-  res.render("admin/products", {
-    prods: products,
-    pageTitle: "Admin Product",
-    path: "/admin/products",
-  });
-};
+//   res.render("admin/products", {
+//     prods: products,
+//     pageTitle: "Admin Product",
+//     path: "/admin/products",
+//   });
+// };
 
-export const deleteProduct = async (req, res, next) => {
-  const { productId } = req.body;
-  await Product.destroy({ where: { id: productId } });
-  res.redirect("/admin/products");
-};
+// export const deleteProduct = async (req, res, next) => {
+//   const { productId } = req.body;
+//   await Product.destroy({ where: { id: productId } });
+//   res.redirect("/admin/products");
+// };

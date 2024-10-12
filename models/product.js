@@ -1,29 +1,35 @@
-import sequelize from "../util/dbconfig.js";
-import { Sequelize, DataTypes } from "sequelize";
+import { ObjectId } from "mongodb";
+import { getDB } from "../util/dbconfig.js";
 
-const Product = sequelize.define("product", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  price: {
-    type: DataTypes.DOUBLE,
-    allowNull: false,
-  },
-  imageUrl: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+class Product {
+  constructor(title, price, description, imageUrl) {
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.imageUrl = imageUrl;
+  }
+
+  async save() {
+    const db = getDB();
+    const result = await db.collection("products").insertOne(this);
+    console.log(result);
+    return result;
+  }
+
+  static async fetchAll() {
+    const db = getDB();
+    const result = await db.collection("products").find({}).toArray();
+    return result;
+  }
+
+  static async findById(id) {
+    const db = getDB();
+
+    const result = await db
+      .collection("products")
+      .findOne({ _id: ObjectId.createFromHexString(id) });
+    return result;
+  }
+}
 
 export default Product;
