@@ -2,7 +2,8 @@ import { ObjectId } from "mongodb";
 import { getDB } from "../util/dbconfig.js";
 
 class Product {
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id = null) {
+    this._id = id ? ObjectId.createFromHexString(id) : null;
     this.title = title;
     this.price = price;
     this.description = description;
@@ -10,9 +11,21 @@ class Product {
   }
 
   async save() {
+    console.log(this);
+
     const db = getDB();
-    const result = await db.collection("products").insertOne(this);
-    console.log(result);
+    let { ["_id"]: _, ...newDocument } = this;
+    console.log(newDocument);
+
+    let result;
+    if (this._id) {
+      result = await db
+        .collection("products")
+        .updateOne({ _id: this._id }, { $set: newDocument });
+    } else {
+      result = await db.collection("products").insertOne(newDocument);
+    }
+
     return result;
   }
 
@@ -28,6 +41,14 @@ class Product {
     const result = await db
       .collection("products")
       .findOne({ _id: ObjectId.createFromHexString(id) });
+    return result;
+  }
+
+  static async deleteById(id) {
+    const db = getDB();
+    const result = await db
+      .collection("products")
+      .deleteOne({ _id: ObjectId.createFromHexString(id) });
     return result;
   }
 }

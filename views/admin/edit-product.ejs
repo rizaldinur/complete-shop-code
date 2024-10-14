@@ -7,7 +7,7 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <form class="product-form" action="<%= editMode==='true'? path+'/'+product.id : path %>" method="POST">
+        <form class="product-form" action="<%= editMode==='true'? path+'/'+product._id : path %>" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input type="text" name="title" id="title" value="<%= editMode==='true'? product.title : '' %>">
