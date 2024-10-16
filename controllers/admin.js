@@ -13,7 +13,14 @@ export const getAddProduct = (req, res, next) => {
 export const postAddProduct = async (req, res, next) => {
   try {
     const { title, price, description, imageUrl } = req.body;
-    const product = new Product(title, price, description, imageUrl);
+    const product = new Product(
+      title,
+      price,
+      description,
+      imageUrl,
+      null,
+      req.user._id
+    );
     const result = await product.save();
     console.log(result);
 
