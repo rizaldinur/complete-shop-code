@@ -53,16 +53,24 @@ class User {
   async getCart() {
     const db = getDB();
     const productIds = this.cart.items.map((cp) => cp.productId);
-    console.log(productIds);
+    console.log(this.cart.items);
+    const cartItems = this.cart.items;
 
     let result = await db
       .collection("products")
       .find({ _id: { $in: productIds } })
       .toArray();
-    result = result.map((p, index) => {
-      return { ...p, quantity: this.cart.items[index].quantity };
+    console.log(result);
+
+    const displayItems = cartItems.map((p) => {
+      return {
+        ...result.find((r) => r._id.toString() === p.productId.toString()),
+        quantity: p.quantity,
+      };
     });
-    return result;
+
+    console.log(displayItems);
+    return displayItems;
   }
 }
 export default User;
