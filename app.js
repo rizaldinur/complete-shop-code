@@ -26,7 +26,11 @@ app.use(express.static(path.join(rootDir, "public")));
 //when request comes through this middleware
 app.use(async (req, res, next) => {
   const user = await User.findById("670f842d2eae2212b75d5656");
-  req.user = user;
+
+  //create User instance using the data from db
+  //so req.user can use User class methods
+  req.user = new User(user.name, user.email, user.cart, user._id);
+
   next();
 });
 

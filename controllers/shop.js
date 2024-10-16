@@ -48,10 +48,7 @@ export const getIndex = async (req, res, next) => {
 
 export const getCart = async (req, res, next) => {
   try {
-    const userCart = await req.user.getCart();
-
-    //get products in CartItem associated with current Cart instance
-    const products = await userCart.getProducts();
+    const products = await req.user.getCart();
 
     res.render("shop/cart", {
       products: products,
@@ -66,30 +63,35 @@ export const getCart = async (req, res, next) => {
 
 export const postCart = async (req, res, next) => {
   const { productId } = req.body;
-  let newQty = 1;
-  //get current user Cart instance
-  const userCart = await req.user.getCart();
 
-  //get products in CartItem associated with current Cart instance
-  //with the product Id
-  const products = await userCart.getProducts({
-    where: { id: productId },
-  });
-  let product;
-  //if product already exists in CartItem, update newQty
-  if (products.length > 0) {
-    product = products[0];
-    let oldQty = product.cartItem.quantity;
-    console.log(oldQty);
-    newQty = oldQty + 1;
-  } else {
-    const newProd = await Product.findByPk(productId);
-    product = newProd;
-  }
+  const product = await Product.findById(productId);
+  const result = await req.user.addToCart(product);
+  console.log(result);
 
-  await userCart.addProduct(product, {
-    through: { quantity: parseInt(newQty) },
-  });
+  // let newQty = 1;
+  // //get current user Cart instance
+  // const userCart = await req.user.getCart();
+
+  // //get products in CartItem associated with current Cart instance
+  // //with the product Id
+  // const products = await userCart.getProducts({
+  //   where: { id: productId },
+  // });
+  // let product;
+  // //if product already exists in CartItem, update newQty
+  // if (products.length > 0) {
+  //   product = products[0];
+  //   let oldQty = product.cartItem.quantity;
+  //   console.log(oldQty);
+  //   newQty = oldQty + 1;
+  // } else {
+  //   const newProd = await Product.findByPk(productId);
+  //   product = newProd;
+  // }
+
+  // await userCart.addProduct(product, {
+  //   through: { quantity: parseInt(newQty) },
+  // });
   res.redirect("/cart");
 };
 
