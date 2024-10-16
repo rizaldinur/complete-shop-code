@@ -1,15 +1,23 @@
-import { Sequelize, DataTypes } from "sequelize";
-import sequelize from "../util/dbconfig.js";
+import { ObjectId } from "mongodb";
+import { getDB } from "../util/dbconfig.js";
 
-const User = sequelize.define("user", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  name: DataTypes.STRING,
-  email: DataTypes.STRING,
-});
+class User {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+  }
 
+  async save() {
+    const db = getDB();
+    const result = await db.collection("users").insertOne(this);
+    return result;
+  }
+  static async findById(userId) {
+    const db = getDB();
+    const result = await db
+      .collection("users")
+      .findOne({ _id: ObjectId.createFromHexString(userId) });
+    return result;
+  }
+}
 export default User;

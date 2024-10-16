@@ -5,8 +5,8 @@ import bodyParser from "body-parser";
 import adminRoutes from "./routes/admin.js";
 import shopRoutes from "./routes/shop.js";
 import pageNotFound from "./controllers/error.js";
+import User from "./models/user.js";
 // // import Product from "./models/product.js";
-// import User from "./models/user.js";
 // import Cart from "./models/cart.js";
 // import CartItem from "./models/cart-item.js";
 // import Order from "./models/order.js";
@@ -25,8 +25,8 @@ app.use(express.static(path.join(rootDir, "public")));
 //store dummy user data as request
 //when request comes through this middleware
 app.use(async (req, res, next) => {
-  // const user = await User.findByPk(1);
-  // req.user = user;
+  const user = await User.findById("670f842d2eae2212b75d5656");
+  req.user = user;
   next();
 });
 

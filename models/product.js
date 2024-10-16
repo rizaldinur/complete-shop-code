@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { getDB } from "../util/dbconfig.js";
 
 class Product {
-  constructor(title, price, description, imageUrl, id = null) {
+  constructor(title, price, description, imageUrl, id) {
     this._id = id ? ObjectId.createFromHexString(id) : null;
     this.title = title;
     this.price = price;
@@ -11,11 +11,8 @@ class Product {
   }
 
   async save() {
-    console.log(this);
-
     const db = getDB();
-    let { ["_id"]: _, ...newDocument } = this;
-    console.log(newDocument);
+    let { _id, ...newDocument } = this;
 
     let result;
     if (this._id) {
