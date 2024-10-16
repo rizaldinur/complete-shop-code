@@ -53,14 +53,14 @@ class User {
   async getCart() {
     const db = getDB();
     const productIds = this.cart.items.map((cp) => cp.productId);
-    console.log(this.cart.items);
+    // console.log(this.cart.items);
     const cartItems = this.cart.items;
 
     let result = await db
       .collection("products")
       .find({ _id: { $in: productIds } })
       .toArray();
-    console.log(result);
+    // console.log(result);
 
     const displayItems = cartItems.map((p) => {
       return {
@@ -69,8 +69,25 @@ class User {
       };
     });
 
-    console.log(displayItems);
+    // console.log(displayItems);
     return displayItems;
   }
+
+  async removeProduct(productId) {
+    // get filtered cartitems that doesnt include removed prod id
+    const newCartItems = this.cart.items.filter(
+      (item) => item.productId.toString() !== productId
+    );
+    console.log(newCartItems);
+    const newCart = { items: newCartItems };
+    console.log(newCart);
+
+    const db = getDB();
+    const result = await db
+      .collection("users")
+      .updateOne({ _id: this._id }, { $set: { cart: newCart } });
+    return result;
+  }
 }
+
 export default User;
