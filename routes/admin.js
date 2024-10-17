@@ -5,18 +5,18 @@ import * as adminControllers from "../controllers/admin.js";
 
 const router = express.Router();
 
-// /admin/add-product => GET
-router.get("/add-product", adminControllers.getAddProduct);
+// // /admin/add-product => GET
+// router.get("/add-product", adminControllers.getAddProduct);
 
-router.get("/products", adminControllers.getAdminProducts);
+// router.get("/products", adminControllers.getAdminProducts);
 
-// /admin/add-product => POST
-router.post("/add-product", adminControllers.postAddProduct);
+// // /admin/add-product => POST
+// router.post("/add-product", adminControllers.postAddProduct);
 
-router.get("/edit-product/:productId", adminControllers.getEditProduct);
+// router.get("/edit-product/:productId", adminControllers.getEditProduct);
 
-router.post("/edit-product/:productId", adminControllers.postEditProduct);
+// router.post("/edit-product/:productId", adminControllers.postEditProduct);
 
-router.post("/delete-product/", adminControllers.deleteProduct);
+// router.post("/delete-product/", adminControllers.deleteProduct);
 
 export default router;
