@@ -1,5 +1,5 @@
 import { where } from "sequelize";
-// import Product from "../models/product.js";
+import Product from "../models/product.js";
 import express from "express";
 
 export const getAddProduct = (req, res, next) => {
@@ -13,14 +13,7 @@ export const getAddProduct = (req, res, next) => {
 export const postAddProduct = async (req, res, next) => {
   try {
     const { title, price, description, imageUrl } = req.body;
-    const product = new Product(
-      title,
-      price,
-      description,
-      imageUrl,
-      null,
-      req.user._id
-    );
+    const product = new Product({ ...req.body });
     const result = await product.save();
     console.log(result);
 
@@ -50,8 +43,9 @@ export const getEditProduct = async (req, res, next) => {
 
 export const postEditProduct = async (req, res, next) => {
   const { productId } = req.params;
-  const { title, price, description, imageUrl } = req.body;
-  const product = new Product(title, price, description, imageUrl, productId);
+
+  const product = await Product.findById(productId);
+  product.set(req.body);
   const result = await product.save();
   console.log(result);
 
@@ -59,7 +53,12 @@ export const postEditProduct = async (req, res, next) => {
 };
 
 export const getAdminProducts = async (req, res, next) => {
-  const products = await Product.fetchAll();
+  // test using cursor
+  const cursor = Product.find().cursor();
+  let products = [];
+  for await (const doc of cursor) {
+    products = [...products, doc];
+  }
 
   res.render("admin/products", {
     prods: products,
@@ -70,7 +69,7 @@ export const getAdminProducts = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   const { productId } = req.body;
-  const result = await Product.deleteById(productId);
+  const result = await Product.findByIdAndDelete(productId);
   console.log(result);
 
   res.redirect("/admin/products");

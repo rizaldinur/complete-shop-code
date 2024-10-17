@@ -1,8 +1,8 @@
-// import Product from "../models/product.js";
+import Product from "../models/product.js";
 
 export const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.find();
 
     res.render("shop/product-list", {
       prods: products,
@@ -33,7 +33,7 @@ export const getProduct = async (req, res, next) => {
 };
 
 export const getIndex = async (req, res, next) => {
-  const products = await Product.fetchAll();
+  const products = await Product.find();
 
   res.render("shop/index", {
     prods: products,
