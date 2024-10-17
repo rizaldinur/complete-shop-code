@@ -53,25 +53,33 @@ class User {
   async getCart() {
     const db = getDB();
     const productIds = this.cart.items.map((cp) => cp.productId);
-    // console.log(this.cart.items);
-    const cartItems = this.cart.items;
+    let cartItems = this.cart.items;
+    // console.log("Current user cart items ", cartItems);
 
     let result = await db
       .collection("products")
       .find({ _id: { $in: productIds } })
       .toArray();
-    console.log(result);
-    if (!result.length) {
-      return [];
-    }
+    // console.log("Found matching products", result);
+
+    //check if some cart item does not exist in products collection
+    //update user cart items to match that exist
+    cartItems = cartItems.filter((item) => {
+      // check each item id if exist in products, then return the matching
+      return result.some((r) => r._id.equals(item.productId));
+    });
+    // console.log("Updated cart items ", cartItems);
+    await db
+      .collection("users")
+      .updateOne({ _id: this._id }, { $set: { cart: { items: cartItems } } });
+
     const displayItems = cartItems.map((p) => {
       return {
         ...result.find((r) => r._id.toString() === p.productId.toString()),
         quantity: p.quantity,
       };
     });
-
-    // console.log(displayItems);
+    // console.log("Items to display ", displayItems);
     return displayItems;
   }
 

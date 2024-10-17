@@ -1,8 +1,4 @@
 import Product from "../models/product.js";
-// import Cart from "../models/cart.js";
-// import { Model, where } from "sequelize";
-// import CartItem from "../models/cart-item.js";
-// import Order from "../models/order.js";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -49,7 +45,6 @@ export const getIndex = async (req, res, next) => {
 export const getCart = async (req, res, next) => {
   try {
     const products = await req.user.getCart();
-    console.log(products);
 
     res.render("shop/cart", {
       products: products,
