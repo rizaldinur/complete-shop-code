@@ -49,6 +49,7 @@ export const getIndex = async (req, res, next) => {
 export const getCart = async (req, res, next) => {
   try {
     const products = await req.user.getCart();
+    console.log(products);
 
     res.render("shop/cart", {
       products: products,
@@ -73,34 +74,18 @@ export const postCart = async (req, res, next) => {
 
 export const postDeleteCartItem = async (req, res, next) => {
   const { productId, productSubTotal } = req.body;
-  await req.user.removeProduct(productId);
+  await req.user.deleteCartItem(productId);
 
   res.redirect("/cart");
 };
 
 export const postOrder = async (req, res, next) => {
-  const userCart = await req.user.getCart();
-  const products = await userCart.getProducts();
-
-  const userOrder = await req.user.createOrder();
-  await userOrder.addProducts(
-    products.map((p) => {
-      p.orderItem = { quantity: p.cartItem.quantity };
-      return p;
-    })
-  );
-  await userCart.setProducts([]);
-
+  await req.user.addOrder();
   res.redirect("/orders");
 };
 
 export const getOrders = async (req, res, next) => {
-  const userOrders = await req.user.getOrders({ include: Product });
-  // const userOrders = await Order.findAll({
-  //   where: { userId: req.user.id },
-  //   include: Product,
-  // });
-
+  const userOrders = await req.user.getOrder();
   res.render("shop/orders", {
     path: "/orders",
     orders: userOrders,

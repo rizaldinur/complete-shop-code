@@ -60,8 +60,10 @@ class User {
       .collection("products")
       .find({ _id: { $in: productIds } })
       .toArray();
-    // console.log(result);
-
+    console.log(result);
+    if (!result.length) {
+      return [];
+    }
     const displayItems = cartItems.map((p) => {
       return {
         ...result.find((r) => r._id.toString() === p.productId.toString()),
@@ -73,7 +75,7 @@ class User {
     return displayItems;
   }
 
-  async removeProduct(productId) {
+  async deleteCartItem(productId) {
     // get filtered cartitems that doesnt include removed prod id
     const newCartItems = this.cart.items.filter(
       (item) => item.productId.toString() !== productId
@@ -86,6 +88,31 @@ class User {
     const result = await db
       .collection("users")
       .updateOne({ _id: this._id }, { $set: { cart: newCart } });
+    return result;
+  }
+
+  async addOrder() {
+    const db = getDB();
+    const products = await this.getCart();
+    const order = {
+      items: products,
+      user: { _id: this._id, name: this.name },
+    };
+    await db.collection("orders").insertOne(order);
+    this.cart = { items: [] };
+    await db
+      .collection("users")
+      .updateOne({ _id: this._id }, { $set: { cart: { items: [] } } });
+  }
+
+  async getOrder() {
+    const db = getDB();
+
+    const result = await db
+      .collection("orders")
+      .find({ "user._id": this._id })
+      .toArray();
+
     return result;
   }
 }
