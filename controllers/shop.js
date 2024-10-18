@@ -94,10 +94,7 @@ export const postOrder = async (req, res, next) => {
 };
 
 export const getOrders = async (req, res, next) => {
-  const userOrders = await Order.find({ user: req.user._id }).populate(
-    "cart.items.product",
-    "title quantity"
-  );
+  const userOrders = await Order.find({ user: req.user._id });
 
   res.render("shop/orders", {
     path: "/orders",
