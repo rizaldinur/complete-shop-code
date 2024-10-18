@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Product from "./product.js";
 
 const Schema = mongoose.Schema;
 
@@ -24,6 +25,32 @@ const userSchema = new Schema({
     ],
   },
 });
+
+userSchema.methods.addToCart = async function (product) {
+  const cartProductIndex = this.cart.items.findIndex((cp) => {
+    return cp.productId.toString() === product._id.toString();
+  });
+  const cartProduct = this.cart.items.find((cp) => {
+    return cp.productId.toString() === product._id.toString();
+  });
+
+  let updatedCart = {};
+  // if product exist, add quantity only
+  if (cartProduct) {
+    const newQuantity = cartProduct.quantity + 1;
+    this.cart.items[cartProductIndex].quantity = newQuantity;
+    updatedCart = { items: [...this.cart.items] };
+  }
+  // else,
+  else {
+    const newProduct = { productId: product._id, quantity: 1 };
+    updatedCart = { items: [...this.cart.items, newProduct] };
+  }
+
+  this.cart = updatedCart;
+  await this.save();
+  return this;
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

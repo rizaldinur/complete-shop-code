@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Product from "../models/product.js";
+import User from "../models/user.js";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -44,7 +46,9 @@ export const getIndex = async (req, res, next) => {
 
 export const getCart = async (req, res, next) => {
   try {
-    const products = await req.user.getCart();
+    await req.user.populate("cart.items.productId", "title");
+    const products = req.user.cart.items;
+    console.log(products);
 
     res.render("shop/cart", {
       products: products,
@@ -62,7 +66,7 @@ export const postCart = async (req, res, next) => {
 
   const product = await Product.findById(productId);
   const result = await req.user.addToCart(product);
-  console.log(result);
+  console.log(result.cart.items);
 
   res.redirect("/cart");
 };
