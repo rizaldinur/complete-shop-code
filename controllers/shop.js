@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Product from "../models/product.js";
 import User from "../models/user.js";
+import Order from "../models/order.js";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -58,7 +59,6 @@ export const getCart = async (req, res, next) => {
     }
 
     const products = req.user.cart.items;
-    console.log(products);
 
     res.render("shop/cart", {
       products: products,
@@ -94,7 +94,11 @@ export const postOrder = async (req, res, next) => {
 };
 
 export const getOrders = async (req, res, next) => {
-  const userOrders = await req.user.getOrder();
+  const userOrders = await Order.find({ user: req.user._id }).populate(
+    "cart.items.product",
+    "title quantity"
+  );
+
   res.render("shop/orders", {
     path: "/orders",
     orders: userOrders,

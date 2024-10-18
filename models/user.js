@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Product from "./product.js";
+import Order from "./order.js";
 
 const Schema = mongoose.Schema;
 
@@ -59,17 +60,41 @@ userSchema.methods.deleteCartItem = async function (productId) {
 
   this.cart.items = newCartItems;
   return await this.save();
-  // console.log(newCartItems);
-  // const newCart = { items: newCartItems };
-  // console.log(newCart);
-
-  // const db = getDB();
-  // const result = await db
-  //   .collection("users")
-  //   .updateOne({ _id: this._id }, { $set: { cart: newCart } });
-  // return result;
 };
 
+userSchema.methods.addOrder = async function () {
+  const items = this.cart.items;
+  console.log(items);
+
+  // const order = new Order({ cart: { items: items }, user: this });
+  // { product: item.productId, quantity: item.quantity }
+  const order = new Order({
+    user: this,
+  });
+
+  items.forEach((item, index) => {
+    order.cart.items[index] = {
+      product: item.productId,
+      quantity: item.quantity,
+    };
+  });
+
+  await order.save();
+  console.log(order);
+
+  // const order = {
+  //   items: products,
+  //   user: { _id: this._id, name: this.name },
+  // };
+  // await db.collection("orders").insertOne(order);
+  this.cart.items = [];
+  await this.save();
+  // await db
+  //   .collection("users")
+  //   .updateOne({ _id: this._id }, { $set: { cart: { items: [] } } });
+};
+
+userSchema.methods.getOrder = async function () {};
 const User = mongoose.model("User", userSchema);
 export default User;
 

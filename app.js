@@ -10,6 +10,7 @@ import User from "./models/user.js";
 import { mongooseConnect } from "./util/dbconfig.js";
 import mongoose from "mongoose";
 import { config } from "dotenv";
+import Order from "./models/order.js";
 
 config();
 
