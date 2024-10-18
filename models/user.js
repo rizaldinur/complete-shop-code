@@ -48,8 +48,26 @@ userSchema.methods.addToCart = async function (product) {
   }
 
   this.cart = updatedCart;
-  await this.save();
-  return this;
+  return await this.save();
+};
+
+userSchema.methods.deleteCartItem = async function (productId) {
+  // get filtered cartitems that doesnt include removed prod id
+  const newCartItems = this.cart.items.filter(
+    (item) => item.productId.toString() !== productId
+  );
+
+  this.cart.items = newCartItems;
+  return await this.save();
+  // console.log(newCartItems);
+  // const newCart = { items: newCartItems };
+  // console.log(newCart);
+
+  // const db = getDB();
+  // const result = await db
+  //   .collection("users")
+  //   .updateOne({ _id: this._id }, { $set: { cart: newCart } });
+  // return result;
 };
 
 const User = mongoose.model("User", userSchema);

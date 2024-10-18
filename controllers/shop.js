@@ -47,6 +47,16 @@ export const getIndex = async (req, res, next) => {
 export const getCart = async (req, res, next) => {
   try {
     await req.user.populate("cart.items.productId", "title");
+
+    //update if theres non existent product
+    const hasNull = req.user.cart.items.some((item) => item.productId === null);
+    if (hasNull) {
+      req.user.cart.items = req.user.cart.items.filter(
+        (item) => item.productId !== null
+      );
+      await req.user.save();
+    }
+
     const products = req.user.cart.items;
     console.log(products);
 
