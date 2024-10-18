@@ -12,8 +12,7 @@ export const getAddProduct = (req, res, next) => {
 
 export const postAddProduct = async (req, res, next) => {
   try {
-    const { title, price, description, imageUrl } = req.body;
-    const product = new Product({ ...req.body });
+    const product = new Product({ ...req.body, userId: req.user });
     const result = await product.save();
     console.log(result);
 

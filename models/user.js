@@ -1,5 +1,32 @@
-// import { ObjectId } from "mongodb";
-// import { getDB } from "../util/dbconfig.js";
+import mongoose from "mongoose";
+
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  cart: {
+    items: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "Product",
+        },
+        quantity: { type: Number, required: true },
+      },
+    ],
+  },
+});
+
+const User = mongoose.model("User", userSchema);
+export default User;
 
 // class User {
 //   constructor(name, email, cart, id) {
