@@ -40,19 +40,6 @@ app.use(
   })
 );
 
-// store dummy user data in request object
-// when request comes through this middleware
-app.use(async (req, res, next) => {
-  const user = await User.findById("6711e33c8dde4e1c73e5389a");
-
-  //find User document instance
-  //and store in req object as property called 'user'
-  //so every incoming request will be funneled through this midleware
-  //and can use the current user document instance
-  req.user = user;
-  next();
-});
-
 //routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);

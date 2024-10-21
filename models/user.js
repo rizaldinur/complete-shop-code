@@ -84,6 +84,5 @@ userSchema.methods.addOrder = async function () {
   await this.save();
 };
 
-userSchema.methods.getOrder = async function () {};
 const User = mongoose.model("User", userSchema);
 export default User;

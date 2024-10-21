@@ -11,7 +11,7 @@ export const getProducts = async (req, res, next) => {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
-      isAuthenticated: false,
+      isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {
     res.redirect("/404");
@@ -29,6 +29,7 @@ export const getProduct = async (req, res, next) => {
       product: product,
       pageTitle: product.title,
       path: "/products",
+      isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {
     res.redirect("/404");
@@ -43,68 +44,93 @@ export const getIndex = async (req, res, next) => {
     prods: products,
     pageTitle: "Shop",
     path: "/",
-    isAuthenticated: false,
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
 export const getCart = async (req, res, next) => {
-  try {
-    await req.user.populate("cart.items.productId", "title");
-
-    //update if theres non existent product
-    const hasNull = req.user.cart.items.some((item) => item.productId === null);
-    if (hasNull) {
-      req.user.cart.items = req.user.cart.items.filter(
-        (item) => item.productId !== null
+  if (req.session.isLoggedIn) {
+    try {
+      const user = await User.findById(req.session.userId).populate(
+        "cart.items.productId",
+        "title"
       );
-      await req.user.save();
+
+      //update if theres non existent product
+      const hasNull = user.cart.items.some((item) => item.productId === null);
+      if (hasNull) {
+        user.cart.items = user.cart.items.filter(
+          (item) => item.productId !== null
+        );
+        await user.save();
+      }
+
+      const products = user.cart.items;
+
+      res.render("shop/cart", {
+        products: products,
+        path: "/cart",
+        pageTitle: "Your Cart",
+        isAuthenticated: req.session.isLoggedIn,
+      });
+    } catch (error) {
+      console.log(error);
+      res.redirect("/404");
     }
-
-    const products = req.user.cart.items;
-
-    res.render("shop/cart", {
-      products: products,
-      path: "/cart",
-      pageTitle: "Your Cart",
-      isAuthenticated: false,
-    });
-  } catch (error) {
-    console.log(error);
-    res.redirect("/404");
+  } else {
+    res.redirect("/login");
   }
 };
 
 export const postCart = async (req, res, next) => {
-  const { productId } = req.body;
+  if (req.session.isLoggedIn) {
+    const { productId } = req.body;
+    const user = await User.findById(req.session.userId);
+    const product = await Product.findById(productId);
+    const result = await user.addToCart(product);
+    console.log(result.cart.items);
 
-  const product = await Product.findById(productId);
-  const result = await req.user.addToCart(product);
-  console.log(result.cart.items);
-
-  res.redirect("/cart");
+    res.redirect("/cart");
+  } else {
+    res.redirect("/login");
+  }
 };
 
 export const postDeleteCartItem = async (req, res, next) => {
-  const { productId, productSubTotal } = req.body;
-  await req.user.deleteCartItem(productId);
+  if (req.session.isLoggedIn) {
+    const { productId, productSubTotal } = req.body;
+    const user = await User.findById(req.session.userId);
+    await user.deleteCartItem(productId);
 
-  res.redirect("/cart");
+    res.redirect("/cart");
+  } else {
+    res.redirect("/login");
+  }
 };
 
 export const postOrder = async (req, res, next) => {
-  await req.user.addOrder();
-  res.redirect("/orders");
+  if (req.session.isLoggedIn) {
+    const user = await User.findById(req.session.userId);
+    await user.addOrder();
+    res.redirect("/orders");
+  } else {
+    res.redirect("/");
+  }
 };
 
 export const getOrders = async (req, res, next) => {
-  const userOrders = await Order.find({ user: req.user._id });
+  if (req.session.isLoggedIn) {
+    const userOrders = await Order.find({ user: req.session.userId });
 
-  res.render("shop/orders", {
-    path: "/orders",
-    orders: userOrders,
-    pageTitle: "Your Orders",
-    isAuthenticated: false,
-  });
+    res.render("shop/orders", {
+      path: "/orders",
+      orders: userOrders,
+      pageTitle: "Your Orders",
+      isAuthenticated: req.session.isLoggedIn,
+    });
+  } else {
+    res.redirect("/login");
+  }
 };
 
 export const getCheckout = (req, res, next) => {

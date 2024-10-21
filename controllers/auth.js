@@ -1,15 +1,29 @@
-export const getLogin = (req, res, next) => {
-  // const isLoggedIn = req.get("Cookie").split("=")[1].trim();
-  console.log(req.session.isLoggedIn);
+import User from "../models/user.js";
 
+export const getLogin = (req, res, next) => {
+  console.log(req.session.isLoggedIn, req.session.userId);
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: false,
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
-export const postLogin = (req, res, next) => {
-  req.session.isLoggedIn = true;
-  res.redirect("/");
+export const postLogin = async (req, res, next) => {
+  // store user data if input matching when log in
+  const email = req.body.email;
+  let user;
+  if (!email) {
+    user = await User.findById("6711e33c8dde4e1c73e5389a");
+  } else {
+    user = await User.findOne({ email: email });
+  }
+  console.log(user);
+  if (user) {
+    req.session.isLoggedIn = true;
+    req.session.userId = user._id;
+    res.redirect("/");
+  } else {
+    res.redirect("/login");
+  }
 };
