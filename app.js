@@ -22,8 +22,16 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 console.log(rootDir);
+//express middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, "public")));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // store dummy user data in request object
 // when request comes through this middleware
@@ -38,17 +46,10 @@ app.use(async (req, res, next) => {
   next();
 });
 
+//routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-
 app.use(pageNotFound);
 
 try {
