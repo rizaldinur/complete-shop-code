@@ -66,6 +66,7 @@ export const getCart = async (req, res, next) => {
       products: products,
       path: "/cart",
       pageTitle: "Your Cart",
+      isAuthenticated: false,
     });
   } catch (error) {
     console.log(error);
@@ -102,6 +103,7 @@ export const getOrders = async (req, res, next) => {
     path: "/orders",
     orders: userOrders,
     pageTitle: "Your Orders",
+    isAuthenticated: false,
   });
 };
 

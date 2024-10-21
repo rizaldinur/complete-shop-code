@@ -14,9 +14,15 @@ import { config } from "dotenv";
 import Order from "./models/order.js";
 import session from "express-session";
 
+const MongoDBStore = (await import("connect-mongodb-session")).default;
+
 config();
 
 const app = express();
+const store = new MongoDBStore(session)({
+  uri: process.env.DATABASE_URL,
+  collection: "sessions",
+});
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -30,6 +36,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: store,
   })
 );
 
