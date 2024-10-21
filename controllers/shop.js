@@ -11,6 +11,7 @@ export const getProducts = async (req, res, next) => {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
+      isAuthenticated: false,
     });
   } catch (error) {
     res.redirect("/404");
@@ -42,6 +43,7 @@ export const getIndex = async (req, res, next) => {
     prods: products,
     pageTitle: "Shop",
     path: "/",
+    isAuthenticated: false,
   });
 };
 

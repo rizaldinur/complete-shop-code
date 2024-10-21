@@ -37,6 +37,7 @@ export const getEditProduct = async (req, res, next) => {
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
     editMode: editMode,
+    isAuthenticated: false,
   });
 };
 
@@ -63,6 +64,7 @@ export const getAdminProducts = async (req, res, next) => {
     prods: products,
     pageTitle: "Admin Product",
     path: "/admin/products",
+    isAuthenticated: false,
   });
 };
 

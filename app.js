@@ -12,6 +12,7 @@ import { mongooseConnect } from "./util/dbconfig.js";
 import mongoose from "mongoose";
 import { config } from "dotenv";
 import Order from "./models/order.js";
+import session from "express-session";
 
 config();
 
@@ -40,6 +41,13 @@ app.use(async (req, res, next) => {
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(pageNotFound);
 
