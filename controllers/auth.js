@@ -22,8 +22,13 @@ export const postLogin = async (req, res, next) => {
   if (user) {
     req.session.isLoggedIn = true;
     req.session.userId = user._id;
+    await req.session.save();
     res.redirect("/");
   } else {
     res.redirect("/login");
   }
+};
+export const postLogout = async (req, res, next) => {
+  await req.session.destroy();
+  res.redirect("/");
 };
