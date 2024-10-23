@@ -9,6 +9,14 @@ export const getLogin = (req, res, next) => {
   });
 };
 
+export const getSignup = (req, res, next) => {
+  res.render("auth/signup", {
+    path: "/signup",
+    pageTitle: "signup",
+    isAuthenticated: req.session.isLoggedIn,
+  });
+};
+
 export const postLogin = async (req, res, next) => {
   // store user data if input matching when log in
   const email = req.body.email;
