@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import { saveSession } from "../util/helper.js";
 
 export const getLogin = (req, res, next) => {
   console.log(req.session.isLoggedIn, req.session.userId);
@@ -17,20 +18,35 @@ export const getSignup = (req, res, next) => {
   });
 };
 
+export const postSignup = async (req, res, next) => {
+  const { email, password, confirmPassword } = req.body;
+
+  const user = await User.findOne({ email: email });
+  if (user) {
+    return res.redirect("/signup");
+  }
+  const newUser = new User({
+    email: email,
+    password: password,
+    cart: { items: [] },
+  });
+  await newUser.save();
+  req.session.isLoggedIn = true;
+  req.session.userId = newUser._id;
+  await saveSession(req);
+  res.redirect("/");
+};
+
 export const postLogin = async (req, res, next) => {
   // store user data if input matching when log in
-  const email = req.body.email;
-  let user;
-  if (!email) {
-    user = await User.findById("6711e33c8dde4e1c73e5389a");
-  } else {
-    user = await User.findOne({ email: email });
-  }
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email, password: password });
+
   console.log(user);
   if (user) {
     req.session.isLoggedIn = true;
     req.session.userId = user._id;
-    await req.session.save();
+    await saveSession(req);
     res.redirect("/");
   } else {
     res.redirect("/login");
