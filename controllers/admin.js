@@ -2,6 +2,7 @@ import { where } from "sequelize";
 import Product from "../models/product.js";
 import express from "express";
 import User from "../models/user.js";
+import { isValidURL } from "../util/helper.js";
 
 export const getAddProduct = (req, res, next) => {
   if (req.session.isLoggedIn) {
@@ -19,8 +20,16 @@ export const getAddProduct = (req, res, next) => {
 export const postAddProduct = async (req, res, next) => {
   if (req.session.isLoggedIn) {
     try {
+      if (!isValidURL(req.body.imageUrl)) {
+        req.body.imageUrl =
+          "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
+      }
+
       const user = await User.findById(req.session.userId);
-      const product = new Product({ ...req.body, userId: user });
+      const product = new Product({
+        ...req.body,
+        userId: user,
+      });
       const result = await product.save();
       console.log(result);
 
@@ -60,6 +69,10 @@ export const postEditProduct = async (req, res, next) => {
   if (req.session.isLoggedIn) {
     const { productId } = req.params;
 
+    if (!isValidURL(req.body.imageUrl)) {
+      req.body.imageUrl =
+        "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
+    }
     const product = await Product.findById(productId);
     product.set(req.body);
     const result = await product.save();
