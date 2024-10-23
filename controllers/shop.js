@@ -49,88 +49,68 @@ export const getIndex = async (req, res, next) => {
 };
 
 export const getCart = async (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    try {
-      const user = await User.findById(req.session.userId).populate(
-        "cart.items.productId",
-        "title"
+  try {
+    const user = await User.findById(req.session.userId).populate(
+      "cart.items.productId",
+      "title"
+    );
+
+    //update if theres non existent product
+    const hasNull = user.cart.items.some((item) => item.productId === null);
+    if (hasNull) {
+      user.cart.items = user.cart.items.filter(
+        (item) => item.productId !== null
       );
-
-      //update if theres non existent product
-      const hasNull = user.cart.items.some((item) => item.productId === null);
-      if (hasNull) {
-        user.cart.items = user.cart.items.filter(
-          (item) => item.productId !== null
-        );
-        await user.save();
-      }
-
-      const products = user.cart.items;
-
-      res.render("shop/cart", {
-        products: products,
-        path: "/cart",
-        pageTitle: "Your Cart",
-        isAuthenticated: req.session.isLoggedIn,
-      });
-    } catch (error) {
-      console.log(error);
-      res.redirect("/404");
+      await user.save();
     }
-  } else {
-    res.redirect("/login");
+
+    const products = user.cart.items;
+
+    res.render("shop/cart", {
+      products: products,
+      path: "/cart",
+      pageTitle: "Your Cart",
+      isAuthenticated: req.session.isLoggedIn,
+    });
+  } catch (error) {
+    console.log(error);
+    res.redirect("/404");
   }
 };
 
 export const postCart = async (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    const { productId } = req.body;
-    const user = await User.findById(req.session.userId);
-    const product = await Product.findById(productId);
-    const result = await user.addToCart(product);
-    console.log(result.cart.items);
+  const { productId } = req.body;
+  const user = await User.findById(req.session.userId);
+  const product = await Product.findById(productId);
+  const result = await user.addToCart(product);
+  console.log(result.cart.items);
 
-    res.redirect("/cart");
-  } else {
-    res.redirect("/login");
-  }
+  res.redirect("/cart");
 };
 
 export const postDeleteCartItem = async (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    const { productId, productSubTotal } = req.body;
-    const user = await User.findById(req.session.userId);
-    await user.deleteCartItem(productId);
+  const { productId, productSubTotal } = req.body;
+  const user = await User.findById(req.session.userId);
+  await user.deleteCartItem(productId);
 
-    res.redirect("/cart");
-  } else {
-    res.redirect("/login");
-  }
+  res.redirect("/cart");
 };
 
 export const postOrder = async (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    const user = await User.findById(req.session.userId);
-    await user.addOrder();
-    res.redirect("/orders");
-  } else {
-    res.redirect("/");
-  }
+  const user = await User.findById(req.session.userId);
+  await user.addOrder();
+  res.redirect("/orders");
 };
 
 export const getOrders = async (req, res, next) => {
-  if (req.session.isLoggedIn) {
-    const userOrders = await Order.find({ user: req.session.userId });
+  const userOrders = await Order.find({ user: req.session.userId });
 
-    res.render("shop/orders", {
-      path: "/orders",
-      orders: userOrders,
-      pageTitle: "Your Orders",
-      isAuthenticated: req.session.isLoggedIn,
-    });
-  } else {
-    res.redirect("/login");
-  }
+  res.render("shop/orders", {
+    path: "/orders",
+    orders: userOrders,
+    pageTitle: "Your Orders",
+    isAuthenticated: req.session.isLoggedIn,
+  });
 };
 
 export const getCheckout = (req, res, next) => {

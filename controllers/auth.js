@@ -43,10 +43,14 @@ export const postSignup = async (req, res, next) => {
 export const postLogin = async (req, res, next) => {
   // store user data if input matching when log in
   const { email, password } = req.body;
-  const user = await User.findOne({ email: email, password: password });
 
+  const user = await User.findOne({ email: email });
   console.log(user);
+
   if (user) {
+    const hashedPassword = user.password;
+    const isValid = await bcrypt.compare(password, hashedPassword);
+    if (!isValid) return res.redirect("/login");
     req.session.isLoggedIn = true;
     req.session.userId = user._id;
     await saveSession(req);
