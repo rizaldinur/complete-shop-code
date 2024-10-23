@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import { saveSession } from "../util/helper.js";
+import bcrypt from "bcryptjs";
 
 export const getLogin = (req, res, next) => {
   console.log(req.session.isLoggedIn, req.session.userId);
@@ -25,9 +26,11 @@ export const postSignup = async (req, res, next) => {
   if (user) {
     return res.redirect("/signup");
   }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
   const newUser = new User({
     email: email,
-    password: password,
+    password: hashedPassword,
     cart: { items: [] },
   });
   await newUser.save();
