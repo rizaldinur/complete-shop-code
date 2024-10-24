@@ -13,7 +13,6 @@ import mongoose from "mongoose";
 import { config } from "dotenv";
 import Order from "./models/order.js";
 import session from "express-session";
-import cookieParser from "cookie-parser";
 import { csrfSync } from "csrf-sync";
 
 const MongoDBStore = (await import("connect-mongodb-session")).default;
@@ -50,7 +49,6 @@ app.use(
 app.use(csrfSynchronisedProtection);
 app.use((req, res, next) => {
   res.locals.csrfToken = generateToken(req);
-  res.setHeader();
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });
