@@ -13,6 +13,8 @@ import mongoose from "mongoose";
 import { config } from "dotenv";
 import Order from "./models/order.js";
 import session from "express-session";
+import cookieParser from "cookie-parser";
+import { csrfSync } from "csrf-sync";
 
 const MongoDBStore = (await import("connect-mongodb-session")).default;
 
@@ -24,6 +26,11 @@ const store = new MongoDBStore(session)({
   collection: "sessions",
 });
 
+const { generateToken, csrfSynchronisedProtection } = csrfSync({
+  getTokenFromRequest: (req) => {
+    return req.body["_csrf"];
+  }, // Used to retrieve the token submitted by the user in a form
+});
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -40,6 +47,13 @@ app.use(
   })
 );
 
+app.use(csrfSynchronisedProtection);
+app.use((req, res, next) => {
+  res.locals.csrfToken = generateToken(req);
+  res.setHeader();
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  next();
+});
 //routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);

@@ -11,7 +11,6 @@ export const getProducts = async (req, res, next) => {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
-      isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {
     res.redirect("/404");
@@ -29,7 +28,6 @@ export const getProduct = async (req, res, next) => {
       product: product,
       pageTitle: product.title,
       path: "/products",
-      isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {
     res.redirect("/404");
@@ -44,7 +42,6 @@ export const getIndex = async (req, res, next) => {
     prods: products,
     pageTitle: "Shop",
     path: "/",
-    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -70,7 +67,6 @@ export const getCart = async (req, res, next) => {
       products: products,
       path: "/cart",
       pageTitle: "Your Cart",
-      isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {
     console.log(error);
@@ -109,7 +105,6 @@ export const getOrders = async (req, res, next) => {
     path: "/orders",
     orders: userOrders,
     pageTitle: "Your Orders",
-    isAuthenticated: req.session.isLoggedIn,
   });
 };
 

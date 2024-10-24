@@ -3,7 +3,7 @@ import { saveSession } from "../util/helper.js";
 import bcrypt from "bcryptjs";
 
 export const getLogin = (req, res, next) => {
-  console.log(req.session.isLoggedIn, req.session.userId);
+  // console.log(req.session.isLoggedIn, req.session.userId);
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
@@ -45,7 +45,7 @@ export const postLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email: email });
-  console.log(user);
+  // console.log(user);
 
   if (user) {
     const hashedPassword = user.password;
