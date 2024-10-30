@@ -14,6 +14,7 @@ import { config } from "dotenv";
 import Order from "./models/order.js";
 import session from "express-session";
 import { csrfSync } from "csrf-sync";
+import flash from "connect-flash";
 
 const MongoDBStore = (await import("connect-mongodb-session")).default;
 
@@ -52,6 +53,8 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });
+app.use(flash());
+
 //routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
