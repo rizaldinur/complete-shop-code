@@ -8,25 +8,30 @@ config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const getLogin = (req, res, next) => {
-  // console.log(req.session.isLoggedIn, req.session.userId);
   const errorMessage = req.flash("error")[0];
-  console.log(errorMessage);
 
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: req.session.isLoggedIn,
+    errorMessage: errorMessage,
+  });
+};
+
+export const getReset = (req, res, next) => {
+  const errorMessage = req.flash("error")[0];
+
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
     errorMessage: errorMessage,
   });
 };
 
 export const getSignup = (req, res, next) => {
   const errorMessage = req.flash("error")[0];
-  console.log(errorMessage);
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
-    isAuthenticated: req.session.isLoggedIn,
     errorMessage: errorMessage,
   });
 };
