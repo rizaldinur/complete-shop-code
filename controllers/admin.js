@@ -41,7 +41,7 @@ export const getEditProduct = async (req, res, next) => {
     return res.redirect("/404");
   }
   const { productId } = req.params;
-  const product = await Product.findById(productId);
+  const product = await Product.findById(req.productId);
 
   res.render("admin/edit-product", {
     product: product,
@@ -68,7 +68,7 @@ export const postEditProduct = async (req, res, next) => {
 
 export const getAdminProducts = async (req, res, next) => {
   // test using cursor
-  const cursor = Product.find().cursor();
+  const cursor = Product.find({ userId: req.session.userId }).cursor();
   let products = [];
   for await (const doc of cursor) {
     products = [...products, doc];
@@ -83,8 +83,8 @@ export const getAdminProducts = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   const { productId } = req.body;
-  const result = await Product.findByIdAndDelete(productId);
-  console.log(result);
+  // const result = await Product.findByIdAndDelete(productId);
+  // console.log(result);
 
   res.redirect("/admin/products");
 };

@@ -2,7 +2,7 @@ import path from "path";
 import express from "express";
 import rootDir from "../util/path.js";
 import * as shopController from "../controllers/shop.js";
-import { isAuth } from "../middleware/isAuth.js";
+import { isAuth } from "../middleware/middleware.js";
 
 const router = express.Router();
 
