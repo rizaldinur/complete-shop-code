@@ -1,6 +1,11 @@
 import User from "../models/user.js";
 import { saveSession } from "../util/helper.js";
 import bcrypt from "bcryptjs";
+import sgMail from "@sendgrid/mail";
+import { config } from "dotenv";
+
+config();
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const getLogin = (req, res, next) => {
   // console.log(req.session.isLoggedIn, req.session.userId);
@@ -20,7 +25,7 @@ export const getSignup = (req, res, next) => {
   console.log(errorMessage);
   res.render("auth/signup", {
     path: "/signup",
-    pageTitle: "signup",
+    pageTitle: "Signup",
     isAuthenticated: req.session.isLoggedIn,
     errorMessage: errorMessage,
   });
@@ -42,6 +47,23 @@ export const postSignup = async (req, res, next) => {
     cart: { items: [] },
   });
   await newUser.save();
+  const msg = {
+    to: email,
+    from: "05111940000201@student.its.ac.id",
+    subject: "Singup Successful!",
+    html: "<h1>You successfully signed up!</h1>",
+  };
+
+  try {
+    await sgMail.send(msg);
+  } catch (error) {
+    console.error(error);
+
+    if (error.response) {
+      console.error(error.response.body);
+    }
+  }
+
   req.session.isLoggedIn = true;
   req.session.userId = newUser._id;
   await saveSession(req);
