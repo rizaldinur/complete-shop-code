@@ -7,9 +7,8 @@ export const isAuth = (req, res, next) => {
   next();
 };
 
-export const isProductCreator = async (req, res, next) => {
+export const currentUserProduct = async (req, res, next) => {
   const { productId } = { ...req.params, ...req.body };
-
   const product = await Product.findOne({
     _id: productId,
     userId: req.session.userId,
@@ -17,6 +16,6 @@ export const isProductCreator = async (req, res, next) => {
   if (!product) {
     return res.redirect("/admin/products");
   }
-  req.productId = product._id;
+  req.product = product;
   next();
 };

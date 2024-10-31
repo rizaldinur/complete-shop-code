@@ -40,11 +40,9 @@ export const getEditProduct = async (req, res, next) => {
   if (!editMode) {
     return res.redirect("/404");
   }
-  const { productId } = req.params;
-  const product = await Product.findById(req.productId);
 
   res.render("admin/edit-product", {
-    product: product,
+    product: req.product,
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
     editMode: editMode,
@@ -52,15 +50,12 @@ export const getEditProduct = async (req, res, next) => {
 };
 
 export const postEditProduct = async (req, res, next) => {
-  const { productId } = req.params;
-
   if (!isValidURL(req.body.imageUrl)) {
     req.body.imageUrl =
       "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
   }
-  const product = await Product.findById(productId);
-  product.set(req.body);
-  const result = await product.save();
+  req.product.set(req.body);
+  const result = await req.product.save();
   console.log(result);
 
   res.redirect("/");
@@ -82,9 +77,7 @@ export const getAdminProducts = async (req, res, next) => {
 };
 
 export const deleteProduct = async (req, res, next) => {
-  const { productId } = req.body;
-  // const result = await Product.findByIdAndDelete(productId);
-  // console.log(result);
+  const result = await Product.findByIdAndDelete(req.product);
 
   res.redirect("/admin/products");
 };

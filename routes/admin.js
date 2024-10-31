@@ -2,7 +2,7 @@ import path from "path";
 import express from "express";
 import rootDir from "../util/path.js";
 import * as adminControllers from "../controllers/admin.js";
-import { isAuth, isProductCreator } from "../middleware/middleware.js";
+import { isAuth, currentUserProduct } from "../middleware/middleware.js";
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/products", isAuth, adminControllers.getAdminProducts);
 router.get(
   "/edit-product/:productId",
   isAuth,
-  isProductCreator,
+  currentUserProduct,
   adminControllers.getEditProduct
 );
 
@@ -21,13 +21,13 @@ router.post("/add-product", isAuth, adminControllers.postAddProduct);
 router.post(
   "/edit-product/:productId",
   isAuth,
-  isProductCreator,
+  currentUserProduct,
   adminControllers.postEditProduct
 );
 router.post(
   "/delete-product/",
   isAuth,
-  isProductCreator,
+  currentUserProduct,
   adminControllers.deleteProduct
 );
 
