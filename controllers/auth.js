@@ -3,6 +3,7 @@ import { saveSession } from "../util/helper.js";
 import bcrypt from "bcryptjs";
 import sgMail from "@sendgrid/mail";
 import { config } from "dotenv";
+import crypto from "crypto";
 
 config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -33,6 +34,26 @@ export const getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: errorMessage,
+  });
+};
+
+export const getNewPassword = async (req, res, next) => {
+  const { token } = req.params;
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiration: { $gt: Date.now() },
+  });
+  if (!user) {
+    return res.redirect("/");
+  }
+
+  const errorMessage = req.flash("error")[0];
+  res.render("auth/new-password", {
+    path: "/new-password",
+    pageTitle: "Update Password",
+    errorMessage: errorMessage,
+    userId: user._id.toString(),
+    passwordToken: token,
   });
 };
 
@@ -97,6 +118,65 @@ export const postLogin = async (req, res, next) => {
   await saveSession(req);
   res.redirect("/");
 };
+
+export const postReset = async (req, res, next) => {
+  crypto.randomBytes(32, async (err, buffer) => {
+    if (err) {
+      return res.redirect("/reset");
+    }
+    const token = buffer.toString("hex");
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      req.flash("error", "No account with that email.");
+      return res.redirect("/reset");
+    }
+    user.resetToken = token;
+    user.resetTokenExpiration = Date.now() + 3600000;
+    await user.save();
+
+    const msg = {
+      to: user.email,
+      from: "05111940000201@student.its.ac.id",
+      subject: "Password Reset",
+      html: `
+      <p>You requested a password reset</p>
+      <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password<p>
+      `,
+    };
+
+    try {
+      await sgMail.send(msg);
+      res.redirect("/");
+    } catch (error) {
+      console.error(error);
+
+      if (error.response) {
+        console.error(error.response.body);
+      }
+    }
+  });
+};
+
+export const postNewPassword = async (req, res, next) => {
+  const { password, userId, passwordToken } = req.body;
+  const user = await User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  });
+  if (!user) {
+    return res.redirect("/");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  user.password = hashedPassword;
+  user.resetToken = null;
+  user.resetTokenExpiration = null;
+  await user.save();
+  console.log("Successfully changed password.");
+  res.redirect("/login");
+};
+
 export const postLogout = async (req, res, next) => {
   await req.session.destroy();
   res.redirect("/");
