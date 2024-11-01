@@ -29,7 +29,11 @@ export const postAddProduct = async (req, res, next) => {
         pageTitle: "Add Product",
         editMode: false,
         product: null,
-        errorMessage: resultValidate.array()[0].msg,
+        errorMessage: resultValidate
+          .array()
+          .map((e) => e.msg)
+          .toString()
+          .replaceAll(",", " "),
         validationErrors: resultValidate.array(),
         oldInput: {
           ...req.body,
