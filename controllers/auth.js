@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import sgMail from "@sendgrid/mail";
 import { config } from "dotenv";
 import crypto from "crypto";
+import { validationResult } from "express-validator";
+import { error } from "console";
 
 config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -59,7 +61,17 @@ export const getNewPassword = async (req, res, next) => {
 
 export const postSignup = async (req, res, next) => {
   const { email, password, confirmPassword } = req.body;
+  const errors = validationResult(req);
 
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: errors.array(),
+    });
+  }
   const user = await User.findOne({ email: email });
   if (user) {
     req.flash("error", "E-mail already exists, please enter a different one.");
