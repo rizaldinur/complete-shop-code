@@ -36,6 +36,7 @@ export const getSignup = (req, res, next) => {
     pageTitle: "Signup",
     errorMessage: errorMessage,
     oldInput: null,
+    validationErrors: [],
   });
 };
 
@@ -73,6 +74,7 @@ export const postSignup = async (req, res, next) => {
         password: password,
         confirmPassword: confirmPassword,
       },
+      validationErrors: errors.array(),
     });
   }
 
