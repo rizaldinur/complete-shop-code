@@ -53,7 +53,7 @@ router.post(
     body("imageUrl", "Invalid image URL.").isURL(),
     body("price").notEmpty().withMessage("Price must not be empty."),
     body("description")
-      .isLength({ max: 500 })
+      .isLength({ min: 5, max: 500 })
       .withMessage(
         "Description must be at least 5 or at most 500 characters long."
       )
