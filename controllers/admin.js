@@ -3,20 +3,38 @@ import Product from "../models/product.js";
 import express from "express";
 import User from "../models/user.js";
 import { isValidURL } from "../util/helper.js";
+import { validationResult } from "express-validator";
 
 export const getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editMode: false,
+    product: null,
+    errorMessage: null,
+    validationErrors: [],
+    oldInput: null,
   });
 };
 
 export const postAddProduct = async (req, res, next) => {
   try {
-    if (!isValidURL(req.body.imageUrl)) {
-      req.body.imageUrl =
-        "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
+    const resultValidate = validationResult(req);
+
+    if (!resultValidate.isEmpty()) {
+      console.log(resultValidate.array());
+
+      return res.status(422).render("admin/edit-product", {
+        path: "/admin/add-product",
+        pageTitle: "Add Product",
+        editMode: false,
+        product: null,
+        errorMessage: resultValidate.array()[0].msg,
+        validationErrors: resultValidate.array(),
+        oldInput: {
+          ...req.body,
+        },
+      });
     }
 
     const user = await User.findById(req.session.userId);
@@ -46,13 +64,27 @@ export const getEditProduct = async (req, res, next) => {
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
     editMode: editMode,
+    errorMessage: null,
+    validationErrors: [],
+    oldInput: null,
   });
 };
 
 export const postEditProduct = async (req, res, next) => {
-  if (!isValidURL(req.body.imageUrl)) {
-    req.body.imageUrl =
-      "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
+  const resultValidate = validationResult(req);
+
+  if (!resultValidate.isEmpty()) {
+    console.log(resultValidate.array());
+
+    return res.status(422).render("admin/edit-product", {
+      path: "/admin/edit-product",
+      pageTitle: "Add Product",
+      editMode: true,
+      product: req.product,
+      errorMessage: resultValidate.array()[0].msg,
+      validationErrors: resultValidate.array(),
+      oldInput: { ...req.body },
+    });
   }
   req.product.set(req.body);
   const result = await req.product.save();
