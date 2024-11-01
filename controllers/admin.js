@@ -83,11 +83,11 @@ export const postEditProduct = async (req, res, next) => {
     return res.status(422).render("admin/edit-product", {
       path: "/admin/edit-product",
       pageTitle: "Add Product",
-      editMode: true,
-      product: req.product,
+      editMode: req.query.edit,
+      product: null,
       errorMessage: resultValidate.array()[0].msg,
       validationErrors: resultValidate.array(),
-      oldInput: { ...req.body },
+      oldInput: { _id: req.product._id, ...req.body },
     });
   }
   req.product.set(req.body);

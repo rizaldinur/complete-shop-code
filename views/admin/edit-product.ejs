@@ -10,7 +10,7 @@
         <% if (errorMessage) { %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
-        <form class="product-form" action="<%= editMode? path+'/'+product?._id : path %>" method="POST">
+        <form class="product-form" action="<%= editMode? `${path}/${oldInput?._id ?? product?._id}?edit=true` : path %>" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input class="<%= validationErrors.find((e)=> e.path === 'title')? 'invalid' : '' %>" type="text" name="title" id="title" value="<%=oldInput?.title ?? product?.title%>">
