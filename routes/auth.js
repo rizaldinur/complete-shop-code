@@ -18,7 +18,6 @@ router.post(
     check("email")
       .isEmail()
       .withMessage("Please enter a valid email")
-      .normalizeEmail()
       .custom(async (value) => {
         const user = await User.findOne({ email: value });
         if (user) {
@@ -27,7 +26,8 @@ router.post(
           );
         }
         return true;
-      }),
+      })
+      .normalizeEmail({ gmail_remove_dots: false }),
     body(
       "password",
       "Please enter a password with only numbers and text and at least 5 characters."
@@ -50,7 +50,7 @@ router.post(
   "/login",
   body("email", "Invalid email or password.")
     .isEmail()
-    .normalizeEmail()
+    .normalizeEmail({ gmail_remove_dots: false })
     .custom(async (value, { req }) => {
       const user = await User.findOne({ email: value });
       if (!user) {
