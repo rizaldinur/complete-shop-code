@@ -1,6 +1,8 @@
 import express from "express";
 import * as authController from "../controllers/auth.js";
 import { check, body } from "express-validator";
+import User from "../models/user.js";
+
 const router = express.Router();
 
 router.get("/login", authController.getLogin);
@@ -11,7 +13,18 @@ router.get("/reset/:token", authController.getNewPassword);
 router.post(
   "/signup",
   [
-    check("email").isEmail().withMessage("Please enter a valid email"),
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email")
+      .custom(async (value) => {
+        const user = await User.findOne({ email: value });
+        if (user) {
+          throw new Error(
+            "E-mail already exists, please enter a different one."
+          );
+          return true;
+        }
+      }),
     body(
       "password",
       "Please enter a password with only numbers and text and at least 5 characters."
