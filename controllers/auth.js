@@ -16,6 +16,8 @@ export const getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: errorMessage,
+    validationErrors: [],
+    oldInput: null,
   });
 };
 
@@ -112,10 +114,16 @@ export const postLogin = async (req, res, next) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
+    console.log(result.array());
+
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "Login",
       errorMessage: result.array()[0].msg,
+      validationErrors: result.array(),
+      oldInput: {
+        ...req.body,
+      },
     });
   }
 
