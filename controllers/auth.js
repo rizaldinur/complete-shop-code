@@ -35,6 +35,7 @@ export const getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: errorMessage,
+    oldInput: null,
   });
 };
 
@@ -67,6 +68,11 @@ export const postSignup = async (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
     });
   }
 
