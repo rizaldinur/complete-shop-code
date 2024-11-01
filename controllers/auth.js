@@ -5,7 +5,6 @@ import sgMail from "@sendgrid/mail";
 import { config } from "dotenv";
 import crypto from "crypto";
 import { validationResult } from "express-validator";
-import { error } from "console";
 
 config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
