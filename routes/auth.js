@@ -8,7 +8,11 @@ router.get("/signup", authController.getSignup);
 router.get("/reset", authController.getReset);
 router.get("/reset/:token", authController.getNewPassword);
 
-router.post("/signup", check("email").isEmail(), authController.postSignup);
+router.post(
+  "/signup",
+  check("email").isEmail().withMessage("Please enter a valid email"),
+  authController.postSignup
+);
 router.post("/login", authController.postLogin);
 router.post("/logout", authController.postLogout);
 router.post("/reset", authController.postReset);

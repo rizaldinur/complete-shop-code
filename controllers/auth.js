@@ -69,7 +69,7 @@ export const postSignup = async (req, res, next) => {
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
-      errorMessage: errors.array(),
+      errorMessage: errors.array()[0].msg,
     });
   }
   const user = await User.findOne({ email: email });
