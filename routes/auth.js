@@ -1,6 +1,7 @@
 import express from "express";
 import * as authController from "../controllers/auth.js";
 import { check, body } from "express-validator";
+import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 
 const router = express.Router();
@@ -40,7 +41,33 @@ router.post(
   ],
   authController.postSignup
 );
-router.post("/login", authController.postLogin);
+router.post(
+  "/login",
+  body("email", "Invalid email or password.")
+    .isEmail()
+    .custom(async (value, { req }) => {
+      const user = await User.findOne({ email: value });
+      if (!user) {
+        throw Error();
+      }
+      req.user = user;
+    }),
+  body("password", "Invalid email or password.").custom(
+    async (value, { req }) => {
+      const password = value;
+      const user = req.user;
+      const hashedPassword = user.password;
+      const isValid = await bcrypt.compare(password, hashedPassword);
+      if (!isValid) {
+        throw Error();
+      }
+      req.session.isLoggedIn = true;
+      req.session.userId = user._id;
+      await saveSession(req);
+    }
+  ),
+  authController.postLogin
+);
 router.post("/logout", authController.postLogout);
 router.post("/reset", authController.postReset);
 router.post("/new-password", authController.postNewPassword);

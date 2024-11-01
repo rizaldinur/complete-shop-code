@@ -63,8 +63,6 @@ export const postSignup = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors.array());
-
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
@@ -103,25 +101,16 @@ export const postSignup = async (req, res, next) => {
 };
 
 export const postLogin = async (req, res, next) => {
-  // store user data if input matching when log in
-  const { email, password } = req.body;
+  const result = validationResult(req);
 
-  const user = await User.findOne({ email: email });
-  // console.log(user);
-  if (!user) {
-    req.flash("error", "Invalid email or password.");
-    return res.redirect("/login");
+  if (!result.isEmpty()) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+      errorMessage: result.array()[0].msg,
+    });
   }
 
-  const hashedPassword = user.password;
-  const isValid = await bcrypt.compare(password, hashedPassword);
-  if (!isValid) {
-    req.flash("error", "Invalid email or password.");
-    return res.redirect("/login");
-  }
-  req.session.isLoggedIn = true;
-  req.session.userId = user._id;
-  await saveSession(req);
   res.redirect("/");
 };
 
