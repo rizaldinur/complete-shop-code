@@ -19,10 +19,10 @@
                 <% } %>
             </div>
             <div class="form-control">
-                <label for="image">Image URL</label>
-                <input class="<%= validationErrors.find((e)=> e.path === 'imageUrl')? 'invalid' : '' %>" type="file" name="image" id="image" value="<%=oldInput?.imageUrl ?? product?.imageUrl%>">
-                <% if (validationErrors.find((e)=> e.path === 'imageUrl')) { %>
-                    <p class="form-message--error"><%= validationErrors.find((e)=> e.path === 'imageUrl').msg %></p>
+                <label for="image">Image</label>
+                <input class="<%= validationErrors.find((e)=> e.path === 'image')? 'invalid' : '' %>" type="file" name="image" id="image" value="<%=oldInput?.imageUrl ?? product?.imageUrl%>">
+                <% if (validationErrors.find((e)=> e.path === 'image')) { %>
+                    <p class="form-message--error"><%= validationErrors.find((e)=> e.path === 'image').msg %></p>
                 <% } %>
             </div>
             <div class="form-control">

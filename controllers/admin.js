@@ -32,8 +32,7 @@ export const postAddProduct = async (req, res, next) => {
         errorMessage: resultValidate
           .array()
           .map((e) => e.msg)
-          .toString()
-          .replaceAll(",", " "),
+          .join(" "),
         validationErrors: resultValidate.array(),
         oldInput: {
           ...req.body,
@@ -45,6 +44,7 @@ export const postAddProduct = async (req, res, next) => {
 
     const product = new Product({
       ...req.body,
+      imageUrl: image.path,
       userId: req.session.userId,
     });
     const result = await product.save();
@@ -78,6 +78,7 @@ export const getEditProduct = async (req, res, next) => {
 
 export const postEditProduct = async (req, res, next) => {
   const resultValidate = validationResult(req);
+  const image = req.file;
 
   if (!resultValidate.isEmpty()) {
     console.log(resultValidate.array());
@@ -91,6 +92,10 @@ export const postEditProduct = async (req, res, next) => {
       validationErrors: resultValidate.array(),
       oldInput: { _id: req.product._id, ...req.body },
     });
+  }
+
+  if (image) {
+    req.product.imageUrl = image.path;
   }
   req.product.set(req.body);
   const result = await req.product.save();
