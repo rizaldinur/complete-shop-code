@@ -61,8 +61,14 @@ app.use(shopRoutes);
 app.use(authRoutes);
 app.get("/500", get500);
 app.use(get404);
+
+// global express error handling middleware here
 app.use((error, req, res, next) => {
-  res.redirect("/500");
+  res.status(500).render("500", {
+    pageTitle: "Internal Failure",
+    path: "/500",
+    isAuthenticated: req.session.isLoggedIn,
+  });
 });
 
 try {
