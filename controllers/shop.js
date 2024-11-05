@@ -46,6 +46,8 @@ export const getIndex = async (req, res, next) => {
   try {
     const page = req.query?.page ?? 1;
     const limit = req.query?.limit ?? ITEMS_PER_PAGE;
+
+    const productCount = await Product.find().countDocuments();
     const products = await Product.find()
       .skip((page - 1) * limit)
       .limit(limit);
@@ -54,6 +56,12 @@ export const getIndex = async (req, res, next) => {
       prods: products,
       pageTitle: "Shop",
       path: "/",
+      totalProducts: productCount,
+      hasNextPage: limit * page < productCount,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: Math.ceil(productCount / limit),
     });
   } catch (error) {
     error.httpStatusCode = 500;
