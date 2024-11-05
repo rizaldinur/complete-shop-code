@@ -145,6 +145,13 @@ export const getOrders = async (req, res, next) => {
 export const getInvoice = async (req, res, next) => {
   try {
     const { orderId } = req.params;
+    const order = await Order.findOne({
+      _id: orderId,
+      user: req.session.userId,
+    });
+    if (!order) {
+      return res.redirect("/orders");
+    }
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
     const data = await fs.readFile(invoicePath);
