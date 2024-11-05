@@ -3,6 +3,7 @@ import Product from "../models/product.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
 import fs from "fs/promises";
+import { createReadStream } from "fs";
 import path from "path";
 
 export const getProducts = async (req, res, next) => {
@@ -154,13 +155,15 @@ export const getInvoice = async (req, res, next) => {
     }
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
-    const data = await fs.readFile(invoicePath);
+    // const data = await fs.readFile(invoicePath);
+    const data = createReadStream(invoicePath);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       'inline; filename="' + invoiceName + '"'
     );
-    res.send(data);
+    // res.send(data);
+    data.pipe(res);
   } catch (error) {
     error.httpStatusCode = 500;
     console.error(error);
