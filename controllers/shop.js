@@ -154,22 +154,51 @@ export const getInvoice = async (req, res, next) => {
     if (!order) {
       return res.redirect("/orders");
     }
+
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
 
     const doc = new PDFDocument();
-    doc.pipe(createWriteStream(invoicePath)); // write to PDF
-    doc.pipe(res); // HTTP response
-
-    // add stuff to PDF here using methods described below...
-    doc.font("Times-Roman", 32).text("Hello World");
-    // finalize the PDF and end the stream
-    doc.end();
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       'inline; filename="' + invoiceName + '"'
     );
+    doc.pipe(createWriteStream(invoicePath)); // write to PDF
+    doc.pipe(res); // HTTP response
+
+    // add stuff to PDF here using methods described below...
+    doc
+      .fontSize(32)
+      .text("Invoice", {
+        underline: true,
+        continued: true,
+      })
+      .fontSize(20)
+      .text(" #" + order._id, doc.x, doc.y + 10, { underline: false });
+    let totalPrice = 0;
+    doc.fontSize(32).text("-----------------------------------");
+    order.items.forEach((item) => {
+      totalPrice += item.quantity * item.product.price;
+      doc
+        .fontSize(20)
+        .text(
+          item.product.title +
+            " - " +
+            item.quantity +
+            " x " +
+            "$" +
+            item.product.price
+        );
+    });
+    doc
+      .fontSize(32)
+      .text("-----------------------------------")
+      .fontSize(26)
+      .text("Total Price: $" + totalPrice);
+
+    // finalize the PDF and end the stream
+    doc.end();
   } catch (error) {
     error.httpStatusCode = 500;
     console.error(error);
