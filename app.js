@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import adminRoutes from "./routes/admin.js";
 import shopRoutes from "./routes/shop.js";
 import authRoutes from "./routes/auth.js";
-import pageNotFound from "./controllers/error.js";
+import { get404, get500 } from "./controllers/error.js";
 import User from "./models/user.js";
 // import { getDB, mongoConnect } from "./util/dbconfig.js";
 import { mongooseConnect } from "./util/dbconfig.js";
@@ -59,7 +59,8 @@ app.use(flash());
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-app.use(pageNotFound);
+app.get("/500", get500);
+app.use(get404);
 
 try {
   mongoose.connection.on("connected", () => {
