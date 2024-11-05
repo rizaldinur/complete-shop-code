@@ -43,7 +43,7 @@ form {
 .main-header__nav {
   height: 100%;
   width: 100%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
 }
@@ -108,8 +108,13 @@ form {
   margin: 1rem;
   padding: 0;
 }
-
-.mobile-nav__item a {
+.mobile-nav__item form button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.mobile-nav__item a,
+.mobile-nav__item form button {
   text-decoration: none;
   color: black;
   font-size: 1.5rem;
@@ -118,10 +123,15 @@ form {
 
 .mobile-nav__item a:active,
 .mobile-nav__item a:hover,
+.mobile-nav__item form button:hover,
 .mobile-nav__item a.active {
   background: #00695c;
   color: white;
   border-radius: 3px;
+}
+
+.mobile-nav__item form button:hover {
+  background: red;
 }
 
 #side-menu-toggle {
