@@ -15,6 +15,7 @@ import Order from "./models/order.js";
 import session from "express-session";
 import { csrfSync } from "csrf-sync";
 import flash from "connect-flash";
+import multer from "multer";
 
 const MongoDBStore = (await import("connect-mongodb-session")).default;
 
@@ -37,6 +38,7 @@ app.set("views", "views");
 console.log(rootDir);
 //express middleware
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer().single("image"));
 app.use(express.static(path.join(rootDir, "public")));
 app.use(
   session({

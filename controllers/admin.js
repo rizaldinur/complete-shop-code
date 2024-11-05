@@ -40,6 +40,8 @@ export const postAddProduct = async (req, res, next) => {
         },
       });
     }
+    const image = req.file;
+    console.log(image);
 
     const product = new Product({
       ...req.body,
