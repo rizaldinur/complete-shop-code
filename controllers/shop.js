@@ -13,7 +13,8 @@ export const getProducts = async (req, res, next) => {
       path: "/products",
     });
   } catch (error) {
-    res.redirect("/404");
+    error.httpStatusCode = 500;
+    next(error);
     console.error(error);
   }
 };

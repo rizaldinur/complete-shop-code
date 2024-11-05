@@ -41,18 +41,18 @@ export const postAddProduct = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(req.session.userId);
     const product = new Product({
       ...req.body,
-      userId: user,
+      userId: req.session.userId,
     });
     const result = await product.save();
     console.log(result);
 
     res.redirect("/");
-  } catch (error) {
-    console.error(error);
-    res.redirect("/404");
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   }
 };
 

@@ -61,16 +61,22 @@ app.use(shopRoutes);
 app.use(authRoutes);
 app.get("/500", get500);
 app.use(get404);
+app.use((error, req, res, next) => {
+  res.redirect("/500");
+});
 
 try {
   mongoose.connection.on("connected", () => {
     console.log("Connected to Mongo Client!");
     console.log("On Database: ", mongoose.connection.name);
+    app.listen(3000, () => {
+      console.log(`Server running on http://localhost:3000`);
+    });
+  });
+  mongoose.connection.on("disconnected", () => {
+    console.log("disconnected");
   });
   await mongooseConnect();
-  app.listen(3000, () => {
-    console.log(`Server running on http://localhost:3000`);
-  });
 } catch (error) {
   console.log(error);
 }
