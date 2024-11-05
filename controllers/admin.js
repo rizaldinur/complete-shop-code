@@ -99,21 +99,24 @@ export const postEditProduct = async (req, res, next) => {
 
 export const getAdminProducts = async (req, res, next) => {
   // test using cursor
-  const cursor = Product.find({ userId: req.session.userId }).cursor();
-  let products = [];
-  for await (const doc of cursor) {
-    products = [...products, doc];
+  try {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
+  } catch (error) {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
   }
-
-  res.render("admin/products", {
-    prods: products,
-    pageTitle: "Admin Product",
-    path: "/admin/products",
-  });
 };
 
 export const deleteProduct = async (req, res, next) => {
-  const result = await Product.findByIdAndDelete(req.product);
-
-  res.redirect("/admin/products");
+  try {
+    const result = await Product.findByIdAndDelete(req.product);
+    res.redirect("/admin/products");
+  } catch (error) {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
+  }
 };

@@ -22,7 +22,6 @@ export const getProducts = async (req, res, next) => {
 export const getProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
-
     const product = await Product.findById(productId);
 
     res.render("shop/product-detail", {
@@ -31,19 +30,26 @@ export const getProduct = async (req, res, next) => {
       path: "/products",
     });
   } catch (error) {
-    res.redirect("/404");
+    error.httpStatusCode = 500;
+    next(error);
     console.error(error);
   }
 };
 
 export const getIndex = async (req, res, next) => {
-  const products = await Product.find();
+  try {
+    const products = await Product.find();
 
-  res.render("shop/index", {
-    prods: products,
-    pageTitle: "Shop",
-    path: "/",
-  });
+    res.render("shop/index", {
+      prods: products,
+      pageTitle: "Shop",
+      path: "/",
+    });
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };
 
 export const getCart = async (req, res, next) => {
@@ -70,48 +76,79 @@ export const getCart = async (req, res, next) => {
       pageTitle: "Your Cart",
     });
   } catch (error) {
-    console.log(error);
-    res.redirect("/404");
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
   }
 };
 
 export const postCart = async (req, res, next) => {
-  const { productId } = req.body;
-  const user = await User.findById(req.session.userId);
-  const product = await Product.findById(productId);
-  const result = await user.addToCart(product);
-  console.log(result.cart.items);
+  try {
+    const { productId } = req.body;
+    const user = await User.findById(req.session.userId);
+    const product = await Product.findById(productId);
+    const result = await user.addToCart(product);
+    console.log(result.cart.items);
 
-  res.redirect("/cart");
+    res.redirect("/cart");
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };
 
 export const postDeleteCartItem = async (req, res, next) => {
-  const { productId, productSubTotal } = req.body;
-  const user = await User.findById(req.session.userId);
-  await user.deleteCartItem(productId);
+  try {
+    const { productId, productSubTotal } = req.body;
+    const user = await User.findById(req.session.userId);
+    await user.deleteCartItem(productId);
 
-  res.redirect("/cart");
+    res.redirect("/cart");
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };
 
 export const postOrder = async (req, res, next) => {
-  const user = await User.findById(req.session.userId);
-  await user.addOrder();
-  res.redirect("/orders");
+  try {
+    const user = await User.findById(req.session.userId);
+    await user.addOrder();
+    res.redirect("/orders");
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };
 
 export const getOrders = async (req, res, next) => {
-  const userOrders = await Order.find({ user: req.session.userId });
+  try {
+    const userOrders = await Order.find({ user: req.session.userId });
 
-  res.render("shop/orders", {
-    path: "/orders",
-    orders: userOrders,
-    pageTitle: "Your Orders",
-  });
+    res.render("shop/orders", {
+      path: "/orders",
+      orders: userOrders,
+      pageTitle: "Your Orders",
+    });
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };
 
 export const getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pageTitle: "Checkout",
-  });
+  try {
+    res.render("shop/checkout", {
+      path: "/checkout",
+      pageTitle: "Checkout",
+    });
+  } catch (error) {
+    error.httpStatusCode = 500;
+    next(error);
+    console.error(error);
+  }
 };

@@ -22,7 +22,7 @@ export const getLogin = (req, res, next) => {
 };
 
 export const getReset = (req, res, next) => {
-  const errorMessage = req.flash("error")[0];
+  const errorMessage = req.flash("error")[0] || req.flash("success")[0];
 
   res.render("auth/reset", {
     path: "/reset",
@@ -98,10 +98,11 @@ export const postSignup = async (req, res, next) => {
     await sgMail.send(msg);
   } catch (error) {
     console.error(error);
-
     if (error.response) {
       console.error(error.response.body);
     }
+    error.httpStatusCode = 500;
+    next(error);
   }
 
   req.session.isLoggedIn = true;
@@ -157,13 +158,16 @@ export const postReset = async (req, res, next) => {
 
     try {
       await sgMail.send(msg);
-      res.redirect("/");
+      req.flash("success", "Password reset link sent to email.");
+      res.redirect("/reset");
     } catch (error) {
       console.error(error);
 
       if (error.response) {
         console.error(error.response.body);
       }
+      error.httpStatusCode = 500;
+      next(error);
     }
   });
 };
