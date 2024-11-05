@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Product from "../models/product.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
+import fs from "fs/promises";
+import path from "path";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -14,8 +16,8 @@ export const getProducts = async (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -31,8 +33,8 @@ export const getProduct = async (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -47,8 +49,8 @@ export const getIndex = async (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -77,8 +79,8 @@ export const getCart = async (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -93,8 +95,8 @@ export const postCart = async (req, res, next) => {
     res.redirect("/cart");
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -107,8 +109,8 @@ export const postDeleteCartItem = async (req, res, next) => {
     res.redirect("/cart");
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -119,8 +121,8 @@ export const postOrder = async (req, res, next) => {
     res.redirect("/orders");
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
 
@@ -135,8 +137,22 @@ export const getOrders = async (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
+  }
+};
+
+export const getInvoice = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const invoiceName = "invoice-" + orderId + ".pdf";
+    const invoicePath = path.join("data", "invoices", invoiceName);
+    const data = await fs.readFile(invoicePath);
+    res.send(data);
+  } catch (error) {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
   }
 };
 
@@ -148,7 +164,7 @@ export const getCheckout = (req, res, next) => {
     });
   } catch (error) {
     error.httpStatusCode = 500;
-    next(error);
     console.error(error);
+    next(error);
   }
 };
