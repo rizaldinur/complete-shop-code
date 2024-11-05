@@ -29,7 +29,12 @@ router.post(
       .notEmpty()
       .withMessage("Title must not be empty.")
       .trim(),
-    // body("imageUrl", "Invalid image URL.").isURL(),
+    check("image").custom(async (value, { req }) => {
+      const image = req.file;
+      if (!image) {
+        throw Error("File must be of type png, jpg, or jpeg.");
+      }
+    }),
     body("price").notEmpty().withMessage("Price must not be empty."),
     body("description")
       .isLength({ min: 5, max: 500 })
@@ -50,7 +55,12 @@ router.post(
       .notEmpty()
       .withMessage("Title must not be empty.")
       .trim(),
-    // body("imageUrl", "Invalid image URL.").isURL(),
+    check("image").custom(async (value, { req }) => {
+      const image = req.file;
+      if (!image) {
+        throw Error("File must be of type png, jpg, or jpeg.");
+      }
+    }),
     body("price").notEmpty().withMessage("Price must not be empty."),
     body("description")
       .isLength({ min: 5, max: 500 })
