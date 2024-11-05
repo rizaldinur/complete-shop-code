@@ -3,8 +3,9 @@ import Product from "../models/product.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
 import fs from "fs/promises";
-import { createReadStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 import path from "path";
+import PDFDocument from "pdfkit";
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -155,15 +156,20 @@ export const getInvoice = async (req, res, next) => {
     }
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
-    // const data = await fs.readFile(invoicePath);
-    const data = createReadStream(invoicePath);
+
+    const doc = new PDFDocument();
+    doc.pipe(createWriteStream(invoicePath)); // write to PDF
+    doc.pipe(res); // HTTP response
+
+    // add stuff to PDF here using methods described below...
+    doc.font("Times-Roman", 32).text("Hello World");
+    // finalize the PDF and end the stream
+    doc.end();
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       'inline; filename="' + invoiceName + '"'
     );
-    // res.send(data);
-    data.pipe(res);
   } catch (error) {
     error.httpStatusCode = 500;
     console.error(error);
