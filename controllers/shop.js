@@ -232,11 +232,19 @@ export const getInvoice = async (req, res, next) => {
   }
 };
 
-export const getCheckout = (req, res, next) => {
+export const getCheckout = async (req, res, next) => {
   try {
+    const user = await User.findById(req.session.userId).populate(
+      "cart.items.productId"
+    );
+    let total = 0;
+    const products = user.cart.items;
+    products.forEach((p) => (total += p.productId.price * p.quantity));
     res.render("shop/checkout", {
       path: "/checkout",
       pageTitle: "Checkout",
+      products: products,
+      totalPrice: total,
     });
   } catch (error) {
     error.httpStatusCode = 500;
