@@ -29,7 +29,7 @@ router.post(
       .notEmpty()
       .withMessage("Title must not be empty.")
       .trim(),
-    body("imageUrl", "Invalid image URL.").isURL(),
+    // body("imageUrl", "Invalid image URL.").isURL(),
     body("price").notEmpty().withMessage("Price must not be empty."),
     body("description")
       .isLength({ min: 5, max: 500 })

@@ -8,14 +8,20 @@ export const isAuth = (req, res, next) => {
 };
 
 export const currentUserProduct = async (req, res, next) => {
-  const { productId } = { ...req.params, ...req.body };
-  const product = await Product.findOne({
-    _id: productId,
-    userId: req.session.userId,
-  });
-  if (!product) {
-    return res.redirect("/admin/products");
+  try {
+    const { productId } = { ...req.params, ...req.body };
+    const product = await Product.findOne({
+      _id: productId,
+      userId: req.session.userId,
+    });
+    if (!product) {
+      return res.redirect("/admin/products");
+    }
+    req.product = product;
+    next();
+  } catch (error) {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
   }
-  req.product = product;
-  next();
 };

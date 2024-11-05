@@ -10,7 +10,7 @@
         <% if (errorMessage) { %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
-        <form class="product-form" action="<%= editMode? `${path}/${oldInput?._id ?? product?._id}?edit=true` : path %>" method="POST">
+        <form class="product-form" action="<%= editMode? `${path}/${oldInput?._id ?? product?._id}?edit=true` : path %>" method="POST" enctype="multipart/form-data">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input class="<%= validationErrors.find((e)=> e.path === 'title')? 'invalid' : '' %>" type="text" name="title" id="title" value="<%=oldInput?.title ?? product?.title%>">
@@ -19,8 +19,8 @@
                 <% } %>
             </div>
             <div class="form-control">
-                <label for="imageUrl">Image URL</label>
-                <input class="<%= validationErrors.find((e)=> e.path === 'imageUrl')? 'invalid' : '' %>" type="text" name="imageUrl" id="imageUrl" value="<%=oldInput?.imageUrl ?? product?.imageUrl%>">
+                <label for="image">Image URL</label>
+                <input class="<%= validationErrors.find((e)=> e.path === 'imageUrl')? 'invalid' : '' %>" type="file" name="image" id="image" value="<%=oldInput?.imageUrl ?? product?.imageUrl%>">
                 <% if (validationErrors.find((e)=> e.path === 'imageUrl')) { %>
                     <p class="form-message--error"><%= validationErrors.find((e)=> e.path === 'imageUrl').msg %></p>
                 <% } %>

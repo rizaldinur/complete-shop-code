@@ -52,7 +52,7 @@ export const postAddProduct = async (req, res, next) => {
   } catch (err) {
     const error = new Error(err);
     error.httpStatusCode = 500;
-    return next(error);
+    next(error);
   }
 };
 
@@ -100,9 +100,16 @@ export const postEditProduct = async (req, res, next) => {
 export const getAdminProducts = async (req, res, next) => {
   // test using cursor
   try {
-    error.httpStatusCode = 500;
-    console.error(error);
-    next(error);
+    const cursor = Product.find({ userId: req.session.userId }).cursor();
+    let products = [];
+    for await (const doc of cursor) {
+      products = [...products, doc];
+    }
+    res.render("admin/products", {
+      prods: products,
+      pageTitle: "Admin Product",
+      path: "/admin/products",
+    });
   } catch (error) {
     error.httpStatusCode = 500;
     console.error(error);
@@ -112,7 +119,7 @@ export const getAdminProducts = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const result = await Product.findByIdAndDelete(req.product);
+    await Product.findByIdAndDelete(req.product);
     res.redirect("/admin/products");
   } catch (error) {
     error.httpStatusCode = 500;
