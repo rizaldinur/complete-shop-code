@@ -148,6 +148,11 @@ export const getInvoice = async (req, res, next) => {
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
     const data = await fs.readFile(invoicePath);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      'inline; filename="' + invoiceName + '"'
+    );
     res.send(data);
   } catch (error) {
     error.httpStatusCode = 500;
