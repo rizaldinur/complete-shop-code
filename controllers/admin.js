@@ -2,7 +2,7 @@ import { where } from "sequelize";
 import Product from "../models/product.js";
 import express from "express";
 import User from "../models/user.js";
-import { isValidURL } from "../util/helper.js";
+import { deleteFile, isValidURL } from "../util/helper.js";
 import { validationResult } from "express-validator";
 
 export const getAddProduct = (req, res, next) => {
@@ -77,31 +77,37 @@ export const getEditProduct = async (req, res, next) => {
 };
 
 export const postEditProduct = async (req, res, next) => {
-  const resultValidate = validationResult(req);
-  const image = req.file;
+  try {
+    const resultValidate = validationResult(req);
+    const image = req.file;
 
-  if (!resultValidate.isEmpty()) {
-    console.log(resultValidate.array());
+    if (!resultValidate.isEmpty()) {
+      console.log(resultValidate.array());
 
-    return res.status(422).render("admin/edit-product", {
-      path: "/admin/edit-product",
-      pageTitle: "Add Product",
-      editMode: req.query.edit,
-      product: null,
-      errorMessage: resultValidate.array()[0].msg,
-      validationErrors: resultValidate.array(),
-      oldInput: { _id: req.product._id, ...req.body },
-    });
+      return res.status(422).render("admin/edit-product", {
+        path: "/admin/edit-product",
+        pageTitle: "Add Product",
+        editMode: req.query.edit,
+        product: null,
+        errorMessage: resultValidate.array()[0].msg,
+        validationErrors: resultValidate.array(),
+        oldInput: { _id: req.product._id, ...req.body },
+      });
+    }
+
+    if (image) {
+      await deleteFile(req.product.imageUrl);
+      req.product.imageUrl = image.path;
+    }
+    req.product.set(req.body);
+    const result = await req.product.save();
+    console.log(result);
+
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
-
-  if (image) {
-    req.product.imageUrl = image.path;
-  }
-  req.product.set(req.body);
-  const result = await req.product.save();
-  console.log(result);
-
-  res.redirect("/");
 };
 
 export const getAdminProducts = async (req, res, next) => {
@@ -127,6 +133,7 @@ export const getAdminProducts = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
   try {
     await Product.findByIdAndDelete(req.product);
+    await deleteFile(req.product.imageUrl);
     res.redirect("/admin/products");
   } catch (error) {
     error.httpStatusCode = 500;
