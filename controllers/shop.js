@@ -7,6 +7,8 @@ import { createReadStream, createWriteStream } from "fs";
 import path from "path";
 import PDFDocument from "pdfkit";
 
+const ITEMS_PER_PAGE = 2;
+
 export const getProducts = async (req, res, next) => {
   try {
     const products = await Product.find();
@@ -42,7 +44,11 @@ export const getProduct = async (req, res, next) => {
 
 export const getIndex = async (req, res, next) => {
   try {
-    const products = await Product.find();
+    const page = req.query?.page ?? 1;
+    const limit = req.query?.limit ?? ITEMS_PER_PAGE;
+    const products = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.render("shop/index", {
       prods: products,
