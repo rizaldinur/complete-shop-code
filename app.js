@@ -34,23 +34,40 @@ const { generateToken, csrfSynchronisedProtection } = csrfSync({
 });
 
 const fileStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, "images");
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     cb(
       null,
-      new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
+      new Date().toISOString().replace(/:/g, "-") +
+        "-" +
+        file.originalname.replace(/\s+/g, "_")
     );
   },
 });
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 console.log(rootDir);
 //express middleware
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({ storage: fileStorage }).single("image"));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use(express.static(path.join(rootDir, "public")));
 app.use(
   session({
