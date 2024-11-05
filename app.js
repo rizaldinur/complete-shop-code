@@ -32,13 +32,25 @@ const { generateToken, csrfSynchronisedProtection } = csrfSync({
     return req.body["_csrf"];
   }, // Used to retrieve the token submitted by the user in a form
 });
+
+const fileStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "images");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
+    );
+  },
+});
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 console.log(rootDir);
 //express middleware
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer().single("image"));
+app.use(multer({ storage: fileStorage }).single("image"));
 app.use(express.static(path.join(rootDir, "public")));
 app.use(
   session({
