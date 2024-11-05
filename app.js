@@ -29,7 +29,7 @@ const store = new MongoDBStore(session)({
 
 const { generateToken, csrfSynchronisedProtection } = csrfSync({
   getTokenFromRequest: (req) => {
-    return req.body["_csrf"];
+    return req.headers["csrf-token"] || req.body["_csrf"];
   }, // Used to retrieve the token submitted by the user in a form
 });
 

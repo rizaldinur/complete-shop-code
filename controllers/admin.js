@@ -132,12 +132,17 @@ export const getAdminProducts = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
+    // const { productId } = req.params;
+    // await Product.findOneAndDelete({
+    //   userId: req.session.userId,
+    //   _id: productId,
+    // });
     await Product.findByIdAndDelete(req.product);
     await deleteFile(req.product.imageUrl);
-    res.redirect("/admin/products");
+
+    res.status(200).json({ message: "Success!" });
+    // res.redirect("/admin/products");
   } catch (error) {
-    error.httpStatusCode = 500;
-    console.error(error);
-    next(error);
+    res.status(500).json({ message: "Deleting product failed." });
   }
 };

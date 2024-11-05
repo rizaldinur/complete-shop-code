@@ -73,8 +73,8 @@ router.post(
   currentUserProduct,
   adminControllers.postEditProduct
 );
-router.post(
-  "/delete-product/",
+router.delete(
+  "/product/delete/:productId",
   isAuth,
   currentUserProduct,
   adminControllers.deleteProduct
