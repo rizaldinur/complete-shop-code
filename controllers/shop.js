@@ -7,16 +7,28 @@ import { createReadStream, createWriteStream } from "fs";
 import path from "path";
 import PDFDocument from "pdfkit";
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 
 export const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find();
+    let page = +req.query?.page || 1;
+    let limit = +req.query?.limit || ITEMS_PER_PAGE;
+
+    const productCount = await Product.find().countDocuments();
+    const products = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
+      currentPage: page,
+      hasNextPage: limit * page < productCount,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(productCount / limit),
     });
   } catch (error) {
     error.httpStatusCode = 500;
@@ -44,8 +56,8 @@ export const getProduct = async (req, res, next) => {
 
 export const getIndex = async (req, res, next) => {
   try {
-    const page = req.query?.page ?? 1;
-    const limit = req.query?.limit ?? ITEMS_PER_PAGE;
+    let page = +req.query?.page || 1;
+    let limit = +req.query?.limit || ITEMS_PER_PAGE;
 
     const productCount = await Product.find().countDocuments();
     const products = await Product.find()
@@ -56,11 +68,11 @@ export const getIndex = async (req, res, next) => {
       prods: products,
       pageTitle: "Shop",
       path: "/",
-      totalProducts: productCount,
+      currentPage: page,
       hasNextPage: limit * page < productCount,
       hasPreviousPage: page > 1,
       nextPage: page + 1,
-      prevPage: page - 1,
+      previousPage: page - 1,
       lastPage: Math.ceil(productCount / limit),
     });
   } catch (error) {
