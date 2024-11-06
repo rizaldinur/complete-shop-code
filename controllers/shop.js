@@ -360,6 +360,11 @@ export const getCheckout = async (req, res, next) => {
 export const getPaymentStatus = async (req, res, next) => {
   try {
     const { order_id } = req.query;
+    if (!req.session.transactionToken) {
+      const order = await Order.findById(order_id);
+      req.session.transactionToken = order.transaction.token;
+      await saveSession(req);
+    }
     let user = {};
     let userOrder = {};
     const response = await snap.transaction.status(order_id);
