@@ -16,11 +16,11 @@
                 <h1>Payment failed.</h1>
             <% } %>
             <h2>Order #<%= orderId %></h2>
-            <h2>Total Price: IDR <%= totalPrice %></h2>
+            <h2>Total Price: IDR <%= (totalPrice).toLocaleString('id-ID') %></h2>
             <div>
                 <a href="/orders" class="btn">Back to Orders</a>
                 <% if (transactionStatus ==='pending' ) { %>
-                    <button id="order-btn" class="btn primary">Pay Now</button>
+                    <button id="order-btn" class="btn primary">Payment Details</button>
                 <% } %>
             </div>
         </div>
