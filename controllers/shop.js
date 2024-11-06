@@ -6,6 +6,12 @@ import fs from "fs/promises";
 import { createReadStream, createWriteStream } from "fs";
 import path from "path";
 import PDFDocument from "pdfkit";
+import midtransClient from "midtrans-client";
+import { config } from "dotenv";
+import { param } from "express-validator";
+import { Types } from "mongoose";
+
+config();
 
 const ITEMS_PER_PAGE = 1;
 
@@ -234,17 +240,62 @@ export const getInvoice = async (req, res, next) => {
 
 export const getCheckout = async (req, res, next) => {
   try {
+    let snap = new midtransClient.Snap({
+      isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    });
     const user = await User.findById(req.session.userId).populate(
       "cart.items.productId"
     );
     let total = 0;
     const products = user.cart.items;
     products.forEach((p) => (total += p.productId.price * p.quantity));
+    const items = products.map((p) => {
+      return {
+        id: p.productId._id,
+        name: p.productId.title,
+        price: p.productId.price * 1000,
+        quantity: p.quantity,
+        url: "http://localhost:3000/products/" + p.productId._id,
+      };
+    });
+    // console.log(products);
+    // console.log(items);
+    console.log(total);
+
+    let parameter = {
+      transaction_details: {
+        order_id: new Types.ObjectId().toString(),
+        gross_amount: total * 1000,
+      },
+      credit_card: {
+        secure: true,
+      },
+      item_details: items,
+      customer_details: {
+        email: user.email,
+        billing_address: {
+          email: user.email,
+          city: "Surabaya",
+          country_code: "IDN",
+        },
+      },
+    };
+    parameter = JSON.stringify(parameter);
+    console.log(parameter);
+
+    const transaction = await snap.createTransaction(parameter);
+    console.log(transaction);
+
     res.render("shop/checkout", {
       path: "/checkout",
       pageTitle: "Checkout",
       products: products,
       totalPrice: total,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+      transactionToken: transaction.token,
+      redirectUrl: transaction.redirect_url,
     });
   } catch (error) {
     error.httpStatusCode = 500;
