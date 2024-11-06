@@ -1,0 +1,66 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/cart.css">
+    </head>
+    <script type="text/javascript"
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      data-client-key="<%=clientKey%>"></script>
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <div class="centered">
+            <% if (transactionStatus ==='settlement') { %>
+            <h1>Your payment is successful!</h1>
+            <% } else if (transactionStatus ==='pending') { %>
+                <h1>Please complete payment before expiry time.</h1>
+                <h1 id="payment-countdown" class="user-message"></h1>
+            <% } else if (transactionStatus ==='deny' || transactionStatus ==='cancel' || transactionStatus ==='expire'  ) { %>
+                <h1>Payment failed.</h1>
+            <% } %>
+            <h2>Order #<%= orderId %></h2>
+            <h2>Total Price: IDR <%= totalPrice %></h2>
+            <div>
+                <a href="/orders" class="btn">Back to Orders</a>
+                <% if (transactionStatus ==='pending' ) { %>
+                    <button id="order-btn" class="btn primary">Pay Now</button>
+                <% } %>
+            </div>
+        </div>
+       <%- include('../includes/end.ejs') %>
+       <% if (transactionStatus ==='pending') { %>
+        <script type="text/javascript">
+            var payButton = document.getElementById('order-btn');
+            payButton.addEventListener('click', function () {
+            window.snap.pay('<%=transactionToken%>');
+            });
+        </script>
+        <script type="text/javascript">
+            var countDownDate = new Date('<%= expiryDate%>').getTime();
+
+            // Update the count down every 1 second
+            var timerCountdown = setInterval(function() {
+
+            // Get today's date and time
+            var now = new Date().getTime();
+                
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+                
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+            // Output the result in an element with id="demo"
+            document.getElementById("payment-countdown").innerHTML = days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s ";
+                
+            // If the count down is over, write some text 
+            if (distance < 0) {
+                clearInterval(timerCountdown);
+                document.getElementById("payment-countdown").innerHTML = "EXPIRED";
+                var payButton = document.getElementById('order-btn');
+                payButton.remove();
+            }
+            }, 1000);
+        </script>
+    <% } %> 

@@ -1,10 +1,9 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/cart.css">
-    </head>
     <script type="text/javascript"
-		src="https://app.stg.midtrans.com/snap/snap.js"
-    data-client-key="<%= clientKey %>"></script>
-    <body>
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      data-client-key="<%=clientKey%>"></script>
+    </head>
       <%- include('../includes/navigation.ejs') %>
         <main>
           <ul class="cart__item-list">
@@ -16,23 +15,20 @@
                     <h1><%= p.productId.title %></h1>
                     <h2>Quantity: <%= p.quantity %></h2>
                 </li>
-                <div class="centered">
-                  <h2>Total Price: IDR <%= totalPrice %></h2>
-                </div>
-                <div class="centered">
-                  <a id="order-btn" class="btn" href="<%= redirectUrl %>">ORDER</a>
-                </div>
-                
-            <% }) %>
-        </ul>
+                <% }) %>
+              </ul>
+              <div class="centered">
+                <h2>Total Price: IDR <%= totalPrice %></h2>
+              </div>
+              <div class="centered">
+                <button id="order-btn" class="btn">Payment Checkout</button>
+              </div>
         </main>
         <%- include('../includes/end.ejs') %>
         <script type="text/javascript">
-          // For example trigger on button clicked, or any time you need
           var payButton = document.getElementById('order-btn');
           payButton.addEventListener('click', function () {
-            // Trigger snap popup. @TODO: Replace TRANSACTION_TOKEN_HERE with your transaction token
-            window.snap.pay('<%= transactionToken %>');
-            // customer will be redirected after completing payment pop-up
+            window.snap.pay('<%=transactionToken%>');
           });
         </script>
+        

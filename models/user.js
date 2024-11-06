@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import Product from "./product.js";
 import Order from "./order.js";
 
@@ -65,11 +65,30 @@ userSchema.methods.deleteCartItem = async function (productId) {
   return await this.save();
 };
 
-userSchema.methods.addOrder = async function () {
+userSchema.methods.addOrUpdateOrder = async function (
+  orderId = null,
+  transactionStatus,
+  statusCode,
+  transactionToken
+) {
   const items = await this.populate("cart.items.productId");
 
+  const userOrder = await Order.findOne({ _id: orderId, user: this });
+  if (userOrder) {
+    userOrder.transaction.status = transactionStatus;
+    userOrder.transaction.status_code = statusCode;
+    userOrder.transaction.token = transactionToken;
+    await userOrder.save();
+    return userOrder;
+  }
   const order = new Order({
+    ...(orderId ? { _id: new Types.ObjectId(orderId) } : {}),
     user: this,
+    transaction: {
+      status: transactionStatus,
+      status_code: statusCode,
+      token: transactionToken,
+    },
   });
 
   let orderItems = items.cart.items.map((i) => {
@@ -84,6 +103,7 @@ userSchema.methods.addOrder = async function () {
 
   this.cart.items = [];
   await this.save();
+  return order;
 };
 
 const User = mongoose.model("User", userSchema);

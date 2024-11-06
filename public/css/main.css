@@ -229,10 +229,22 @@ form {
   border-color: red;
 }
 
+.btn.primary {
+  background-color: #00695c;
+  color: white;
+}
+
 .btn.danger:hover,
 .btn.danger:active {
   background: red;
   color: white;
+}
+
+.btn.primary:hover,
+.btn.primary:active {
+  border: 1px solid #00695c;
+  color: #00695c;
+  background: white;
 }
 
 .user-message {
@@ -245,10 +257,28 @@ form {
   text-align: center;
 }
 
-.user-message {
+.user-message.user-message--error {
   border-color: red;
   background: #fcc7c7;
   color: red;
+}
+
+.status {
+  display: inline;
+  background: #a1a1ff;
+  color: #3434ff;
+  padding: 0.5rem;
+  border-radius: 20px;
+}
+
+.status.success {
+  background: #96d88d;
+  color: #289c24;
+}
+
+.status.failed {
+  background: #ff9898;
+  color: #ff4040;
 }
 
 .pagination {

@@ -11,13 +11,29 @@
                 <ul class="orders">
                     <% orders.forEach(order => { %>
                         <li class="orders__item">
-                            <h1>Order #<%= order._id %></h1>
+                            <div class="orders__header">
+                                <h1>Order #<%= order._id %></h1>
+                                <% if (order.transaction.status ==='settlement' || order.transaction.status ==='settlement') { %>
+                                    <h1 class="status success">Payment Successful</h1>
+                                <% } else if (order.transaction.status ==='pending') { %>
+                                    <h1 class="status">Waiting Payment</h1>
+                                <% } else if (order.transaction.status ==='deny' || order.transaction.status ==='cancel' || order.transaction.status ==='expire'  ) { %>
+                                    <h1 class="status failed">Failed</h1>
+                                <% } %>
+                            </div>
                             <ul class="orders__products">
                                 <% order.items.forEach(item => { %>
                                     <li class="orders__products-item"><%= item.product.title %> (<%= item.quantity %>)</li>
                                 <% }); %>
                             </ul>
-                            <a href="/orders/<%= order._id %>" class="btn">Invoice</a>
+                            <div>
+                                <% if (order.transaction.status === 'settlement') { %>
+                                    <a href="/orders/<%= order._id %>/invoice" class="btn">Invoice</a>
+                                <% } %>
+                                <% if (order.transaction.status === 'pending' || order.transaction.status === 'settlement') { %>
+                                    <a href="/orders/payment-status?order_id=<%= order._id %>&status_code=<%= order.transaction.status_code %>&transaction_status=<%= order.transaction.status %>" class="btn"><%= order.transaction.status === 'pending'? 'Complete Payment' : 'Order Details'%></a>
+                                <% } %>
+                            </div>
                         </li>
                     <% }); %>
                 </ul>

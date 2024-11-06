@@ -10,10 +10,16 @@ import midtransClient from "midtrans-client";
 import { config } from "dotenv";
 import { param } from "express-validator";
 import { Types } from "mongoose";
+import { saveSession } from "../util/helper.js";
 
 config();
-
+const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY;
 const ITEMS_PER_PAGE = 1;
+const snap = new midtransClient.Snap({
+  isProduction: false,
+  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  clientKey: MIDTRANS_CLIENT_KEY,
+});
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -163,10 +169,22 @@ export const postOrder = async (req, res, next) => {
 export const getOrders = async (req, res, next) => {
   try {
     const userOrders = await Order.find({ user: req.session.userId });
+    for (const order of userOrders) {
+      const res = await snap.transaction.status(order._id);
+
+      if (
+        res.transaction_status !== order.transaction.status &&
+        res.transaction_status !== "deny"
+      ) {
+        order.transaction.status = res.transaction_status;
+        await order.save();
+      }
+    }
+    const updatedOrders = await Order.find({ user: req.session.userId });
 
     res.render("shop/orders", {
       path: "/orders",
-      orders: userOrders,
+      orders: updatedOrders,
       pageTitle: "Your Orders",
     });
   } catch (error) {
@@ -200,16 +218,27 @@ export const getInvoice = async (req, res, next) => {
     doc.pipe(res); // HTTP response
 
     // add stuff to PDF here using methods described below...
-    doc
-      .fontSize(32)
-      .text("Invoice", {
-        underline: true,
-        continued: true,
-      })
-      .fontSize(20)
-      .text(" #" + order._id, doc.x, doc.y + 10, { underline: false });
+    doc.fontSize(32).text("Invoice", {
+      underline: true,
+      continued: true,
+      align: "left",
+    });
+
+    doc.fontSize(16).text("Order ID: #" + order._id, doc.x, doc.y + 10, {
+      underline: false,
+      continued: false,
+      align: "right",
+    });
+
     let totalPrice = 0;
-    doc.fontSize(32).text("-----------------------------------");
+    doc.moveDown(0.5);
+    doc
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.width - doc.page.margins.right, doc.y + 1)
+      .dash(5)
+      .stroke();
+
+    doc.moveDown();
     order.items.forEach((item) => {
       totalPrice += item.quantity * item.product.price;
       doc
@@ -219,15 +248,35 @@ export const getInvoice = async (req, res, next) => {
             " - " +
             item.quantity +
             " x " +
-            "$" +
-            item.product.price
+            "IDR " +
+            (item.product.price * 1000).toLocaleString("id-ID"),
+          {
+            continued: true,
+            align: "left",
+          }
         );
+
+      doc.text(
+        (item.quantity * item.product.price * 1000).toLocaleString("id-ID"),
+        { continued: false, align: "right" }
+      );
     });
+    doc.moveDown();
     doc
-      .fontSize(32)
-      .text("-----------------------------------")
+      .moveTo(doc.page.margins.left, doc.y + 1)
+      .lineTo(doc.page.width - doc.page.margins.right, doc.y + 1)
+      .stroke();
+    doc.moveDown(0.5);
+    doc
       .fontSize(26)
-      .text("Total Price: $" + totalPrice);
+      .text("Total Price:", {
+        continued: true,
+        align: "left",
+      })
+      .text("IDR " + (totalPrice * 1000).toLocaleString("id-ID"), {
+        continued: false,
+        align: "right",
+      });
 
     // finalize the PDF and end the stream
     doc.end();
@@ -240,11 +289,6 @@ export const getInvoice = async (req, res, next) => {
 
 export const getCheckout = async (req, res, next) => {
   try {
-    let snap = new midtransClient.Snap({
-      isProduction: false,
-      serverKey: process.env.MIDTRANS_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_CLIENT_KEY,
-    });
     const user = await User.findById(req.session.userId).populate(
       "cart.items.productId"
     );
@@ -263,10 +307,10 @@ export const getCheckout = async (req, res, next) => {
     // console.log(products);
     // console.log(items);
     console.log(total);
-
+    const orderId = new Types.ObjectId().toString();
     let parameter = {
       transaction_details: {
-        order_id: new Types.ObjectId().toString(),
+        order_id: orderId,
         gross_amount: total * 1000,
       },
       credit_card: {
@@ -281,21 +325,72 @@ export const getCheckout = async (req, res, next) => {
           country_code: "IDN",
         },
       },
+      expiry: {
+        unit: "hours",
+        duration: 24,
+      },
+      callbacks: {
+        finish: `http://localhost:3000/orders/payment-status`,
+        error: `http://localhost:3000/orders/payment-status`,
+      },
     };
     parameter = JSON.stringify(parameter);
-    console.log(parameter);
 
     const transaction = await snap.createTransaction(parameter);
     console.log(transaction);
+    req.session.transactionToken = transaction.token;
+    await saveSession(req);
 
     res.render("shop/checkout", {
       path: "/checkout",
       pageTitle: "Checkout",
       products: products,
       totalPrice: total,
-      clientKey: process.env.MIDTRANS_CLIENT_KEY,
+      clientKey: MIDTRANS_CLIENT_KEY,
       transactionToken: transaction.token,
       redirectUrl: transaction.redirect_url,
+    });
+  } catch (error) {
+    error.httpStatusCode = 500;
+    console.error(error);
+    next(error);
+  }
+};
+
+export const getPaymentStatus = async (req, res, next) => {
+  try {
+    const { order_id } = req.query;
+    let user = {};
+    let userOrder = {};
+    const response = await snap.transaction.status(order_id);
+    console.log(response);
+    console.log(
+      order_id,
+      response.transaction_status,
+      response.status_code,
+      req.session.transactionToken
+    );
+
+    if (response.transaction_status !== "deny") {
+      user = await User.findById(req.session.userId);
+      userOrder = await user.addOrUpdateOrder(
+        order_id,
+        response.transaction_status,
+        response.status_code,
+        req.session.transactionToken
+      );
+    }
+    console.log(user instanceof User, userOrder instanceof Order);
+
+    res.render("shop/payment-status", {
+      transactionStatus: userOrder.transaction.status,
+      orderId: order_id,
+      path: "/orders",
+      pageTitle: "Your Order",
+      expiryDate: response.expiry_time,
+      totalPrice: +response.gross_amount,
+      clientKey: MIDTRANS_CLIENT_KEY,
+      transactionToken: userOrder.transaction.token,
     });
   } catch (error) {
     error.httpStatusCode = 500;
