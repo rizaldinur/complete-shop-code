@@ -329,6 +329,10 @@ export const getCheckout = async (req, res, next) => {
         unit: "hours",
         duration: 24,
       },
+      page_expiry: {
+        unit: "hours",
+        duration: 24,
+      },
       callbacks: {
         finish: `http://localhost:3000/orders/payment-status`,
         error: `http://localhost:3000/orders/payment-status`,
