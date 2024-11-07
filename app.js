@@ -96,6 +96,8 @@ app.use(get404);
 
 // global express error handling middleware here
 app.use((error, req, res, next) => {
+  console.log(error);
+
   res.status(500).render("500", {
     pageTitle: "Internal Failure",
     path: "/500",

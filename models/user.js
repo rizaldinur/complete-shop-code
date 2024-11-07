@@ -65,7 +65,7 @@ userSchema.methods.deleteCartItem = async function (productId) {
   return await this.save();
 };
 
-userSchema.methods.addOrUpdateOrder = async function (
+userSchema.methods.addOrder = async function (
   orderId = null,
   transactionStatus,
   statusCode,
@@ -73,14 +73,6 @@ userSchema.methods.addOrUpdateOrder = async function (
 ) {
   const items = await this.populate("cart.items.productId");
 
-  const userOrder = await Order.findOne({ _id: orderId, user: this });
-  if (userOrder) {
-    userOrder.transaction.status = transactionStatus;
-    userOrder.transaction.status_code = statusCode;
-    userOrder.transaction.token = transactionToken;
-    await userOrder.save();
-    return userOrder;
-  }
   const order = new Order({
     ...(orderId ? { _id: new Types.ObjectId(orderId) } : {}),
     user: this,

@@ -154,18 +154,6 @@ export const postDeleteCartItem = async (req, res, next) => {
   }
 };
 
-export const postOrder = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.session.userId);
-    await user.addOrder();
-    res.redirect("/orders");
-  } catch (error) {
-    error.httpStatusCode = 500;
-    console.error(error);
-    next(error);
-  }
-};
-
 export const getOrders = async (req, res, next) => {
   try {
     const userOrders = await Order.find({ user: req.session.userId });
@@ -177,6 +165,7 @@ export const getOrders = async (req, res, next) => {
         res.transaction_status !== "deny"
       ) {
         order.transaction.status = res.transaction_status;
+        order.transaction.status_code = res.status_code;
         await order.save();
       }
     }
@@ -334,8 +323,8 @@ export const getCheckout = async (req, res, next) => {
         duration: 24,
       },
       callbacks: {
-        finish: `http://localhost:3000/orders/payment-status`,
-        error: `http://localhost:3000/orders/payment-status`,
+        finish: `${req.protocol}://${req.get("host")}/orders/payment-status`,
+        error: `${req.protocol}://${req.get("host")}/orders/payment-status`,
       },
     };
     parameter = JSON.stringify(parameter);
@@ -349,7 +338,7 @@ export const getCheckout = async (req, res, next) => {
       path: "/checkout",
       pageTitle: "Checkout",
       products: products,
-      totalPrice: total,
+      totalPrice: total * 1000,
       clientKey: MIDTRANS_CLIENT_KEY,
       transactionToken: transaction.token,
       redirectUrl: transaction.redirect_url,
@@ -364,31 +353,39 @@ export const getCheckout = async (req, res, next) => {
 export const getPaymentStatus = async (req, res, next) => {
   try {
     const { order_id } = req.query;
-    if (!req.session.transactionToken) {
-      const order = await Order.findById(order_id);
-      req.session.transactionToken = order.transaction.token;
-      await saveSession(req);
-    }
-    let user = {};
-    let userOrder = {};
-    const response = await snap.transaction.status(order_id);
-    console.log(response);
-    console.log(
-      order_id,
-      response.transaction_status,
-      response.status_code,
-      req.session.transactionToken
-    );
+    let response = await snap.transaction.status(order_id);
+    let user;
+    let userOrder = await Order.findById(order_id);
 
-    if (response.transaction_status !== "deny") {
+    if (!userOrder && response.transaction_status !== "deny") {
       user = await User.findById(req.session.userId);
-      userOrder = await user.addOrUpdateOrder(
+      userOrder = await user.addOrder(
         order_id,
         response.transaction_status,
         response.status_code,
         req.session.transactionToken
       );
     }
+    const transactionToken = userOrder.transaction?.token;
+    if (
+      response.transaction_status !== "deny" &&
+      response.transaction_status !== userOrder.transaction.status
+    ) {
+      userOrder.transaction.status = response.transaction_status;
+      userOrder.transaction.status_code = response.status_code;
+      userOrder.transaction.token = transactionToken;
+      await userOrder.save();
+      return userOrder;
+    }
+
+    console.log(response);
+    console.log(
+      order_id,
+      response.transaction_status,
+      response.status_code,
+      transactionToken
+    );
+
     console.log(user instanceof User, userOrder instanceof Order);
 
     res.render("shop/payment-status", {
@@ -399,7 +396,7 @@ export const getPaymentStatus = async (req, res, next) => {
       expiryDate: response.expiry_time,
       totalPrice: +response.gross_amount,
       clientKey: MIDTRANS_CLIENT_KEY,
-      transactionToken: userOrder.transaction.token,
+      transactionToken: transactionToken,
     });
   } catch (error) {
     error.httpStatusCode = 500;
