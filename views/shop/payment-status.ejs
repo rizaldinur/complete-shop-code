@@ -7,7 +7,7 @@
     <body>
         <%- include('../includes/navigation.ejs') %>
         <div class="centered">
-            <% if (transactionStatus ==='settlement') { %>
+            <% if (transactionStatus ==='settlement' || transactionStatus ==='capture') { %>
             <h1>Your payment is successful!</h1>
             <% } else if (transactionStatus ==='pending') { %>
                 <h1>Please complete payment before expiry time.</h1>
@@ -21,6 +21,9 @@
                 <a href="/orders" class="btn">Back to Orders</a>
                 <% if (transactionStatus ==='pending' ) { %>
                     <button id="order-btn" class="btn primary">Payment Details</button>
+                <% } %>
+                <% if (transactionStatus ==='settlement' || transactionStatus ==='capture') { %>
+                    <a href="/orders/<%= orderId %>/invoice" class="btn">Invoice</a>
                 <% } %>
             </div>
         </div>

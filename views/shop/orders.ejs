@@ -12,8 +12,12 @@
                     <% orders.forEach(order => { %>
                         <li class="orders__item">
                             <div class="orders__header">
+                                <% if (order.transaction.status ==='settlement' || order.transaction.status ==='capture') { %>
+                                    <h1>Order #<%= order._id %> - <a href="/orders/<%= order._id %>/invoice">Invoice</a></h1>
+                                <% } else  { %>
                                 <h1>Order #<%= order._id %></h1>
-                                <% if (order.transaction.status ==='settlement' || order.transaction.status ==='settlement') { %>
+                                <% } %>
+                                <% if (order.transaction.status ==='settlement' || order.transaction.status ==='capture') { %>
                                     <h1 class="status success">Payment Successful</h1>
                                 <% } else if (order.transaction.status ==='pending') { %>
                                     <h1 class="status">Waiting Payment</h1>
@@ -27,9 +31,6 @@
                                 <% }); %>
                             </ul>
                             <div>
-                                <% if (order.transaction.status === 'settlement') { %>
-                                    <a href="/orders/<%= order._id %>/invoice" class="btn">Invoice</a>
-                                <% } %>
                                 <% if (order.transaction.status === 'pending' || order.transaction.status === 'settlement') { %>
                                     <a href="/orders/payment-status?order_id=<%= order._id %>&status_code=<%= order.transaction.status_code %>&transaction_status=<%= order.transaction.status %>" class="btn"><%= order.transaction.status === 'pending'? 'Complete Payment' : 'Order Details'%></a>
                                 <% } %>
