@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 import Product from "../models/product.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
-import fs from "fs/promises";
+// import fs from "fs/promises";
+import fs from "fs";
 import { createReadStream, createWriteStream } from "fs";
 import path from "path";
 import PDFDocument from "pdfkit";
@@ -195,6 +196,10 @@ export const getInvoice = async (req, res, next) => {
     }
 
     const invoiceName = "invoice-" + orderId + ".pdf";
+    if (!fs.existsSync("data/invoices")) {
+      fs.mkdirSync("data/invoices", { recursive: true });
+    }
+
     const invoicePath = path.join("data", "invoices", invoiceName);
 
     const doc = new PDFDocument();
